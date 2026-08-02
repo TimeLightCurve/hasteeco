@@ -4,6 +4,7 @@ export const propertyInputSchema = z.object({
   listingId: z.number().int().positive(),
   slug: z.string().trim().min(3).max(120).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   title: z.string().trim().min(3).max(160),
+  titleFa: z.string().trim().min(3).max(160),
   summary: z.string().trim().min(10).max(400),
   description: z.string().trim().min(20).max(5000),
   propertyType: z.enum(["villa", "apartment", "house", "land", "commercial"]),

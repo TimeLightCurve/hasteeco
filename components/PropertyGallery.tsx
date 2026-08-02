@@ -2,12 +2,16 @@
 
 import Image from "next/image"
 import { useState } from "react"
+import { useHorizontalSwipe } from "@/hooks/useHorizontalSwipe"
 
 export default function PropertyGallery({ images, title }: { images: string[]; title: string }) {
   const [active, setActive] = useState(0)
+  const next = () => setActive((value) => (value + 1) % images.length)
+  const previous = () => setActive((value) => (value - 1 + images.length) % images.length)
+  const swipeHandlers = useHorizontalSwipe(next, previous)
 
   return (
-    <div className="relative h-[62vh] min-h-130 overflow-hidden bg-stone-900 lg:h-[72vh]">
+    <div {...swipeHandlers} className="relative h-[62vh] min-h-130 touch-pan-y overflow-hidden bg-stone-900 lg:h-[72vh]">
       {images.map((image, index) => (
         <Image
           key={image}

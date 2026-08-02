@@ -136,6 +136,7 @@ function PropertyForm({ property, nextListingId, onSubmit, pending, message, def
       <FormSection title="اطلاعات پایه" description="عنوان، شناسه و وضعیت انتشار">
         <div className="grid gap-4 sm:grid-cols-2"><Field name="listingId" label="شناسه" type="number" required defaultValue={property?.listingId ?? nextListingId} /><Field name="slug" label="Slug انگلیسی" dir="ltr" required defaultValue={property?.slug} placeholder="modern-villa-lavasan" /></div>
         <Field name="title" label="عنوان انگلیسی" dir="ltr" required defaultValue={property?.title} placeholder="Modern Villa in Lavasan" />
+        <Field name="titleFa" label="عنوان فارسی" required defaultValue={property?.titleFa} placeholder="ویلای مدرن در لواسان" />
         <Field name="summary" label="خلاصه انگلیسی" dir="ltr" required defaultValue={property?.summary} />
         <TextArea name="description" label="توضیحات انگلیسی" dir="ltr" required defaultValue={property?.description} rows={5} />
         <div className="grid gap-4 sm:grid-cols-2"><SelectField name="propertyType" label="نوع ملک" defaultValue={property?.propertyType ?? "villa"} options={["villa", "apartment", "house", "land", "commercial"]} /><SelectField name="status" label="وضعیت" defaultValue={property?.status ?? "for-sale"} options={["for-sale", "for-rent"]} /><label className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3.5 text-base font-bold"><input name="featured" type="checkbox" defaultChecked={property?.featured ?? false} className="accent-brand-green" /> ملک ویژه</label><label className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3.5 text-base font-bold"><input name="our_project" type="checkbox" defaultChecked={property?.our_project ?? defaultOurProject} className="accent-brand-green" /> نمایش در پروژه‌های ما</label></div>
@@ -175,7 +176,7 @@ function propertyFromForm(form: FormData): PropertyInput {
   const lines = (name: string) => text(name).split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean)
 
   return {
-    listingId: number("listingId"), slug: text("slug"), title: text("title"), summary: text("summary"), description: text("description"),
+    listingId: number("listingId"), slug: text("slug"), title: text("title"), titleFa: text("titleFa"), summary: text("summary"), description: text("description"),
     propertyType: text("propertyType") as PropertyInput["propertyType"], status: text("status") as PropertyInput["status"],
     buildingAreaSqM: number("buildingAreaSqM"), landAreaSqM: number("landAreaSqM"), buildingDimensions: dimensions,
     rooms: number("rooms"), bedrooms: number("bedrooms"), bathrooms: number("bathrooms"), parkingSpaces: number("parkingSpaces"),

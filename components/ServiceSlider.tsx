@@ -4,6 +4,8 @@ import type { Service } from "@/lib/services"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { useHorizontalSwipe } from "@/hooks/useHorizontalSwipe"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 
 type Props = {
   services: Service[]
@@ -21,6 +23,9 @@ const fallbackTypeMap: Record<string, string> = {
 
 export default function ServiceSlider({ services, compact = false }: Props) {
   const [current, setCurrent] = useState(0)
+  const next = () => setCurrent((value) => (value + 1) % services.length)
+  const previous = () => setCurrent((value) => (value - 1 + services.length) % services.length)
+  const swipeHandlers = useHorizontalSwipe(next, previous)
 
   useEffect(() => {
     if (services.length < 2) return
@@ -34,16 +39,14 @@ export default function ServiceSlider({ services, compact = false }: Props) {
 
   const active = services[current]
   const targetType = active.relatedPropertyType ?? fallbackTypeMap[active.serviceType] ?? "villa"
-  const next = () => setCurrent((value) => (value + 1) % services.length)
-  const previous = () => setCurrent((value) => (value - 1 + services.length) % services.length)
 
   return (
-    <section id="services" className={compact ? "scroll-mt-20 px-4 pb-12 pt-12 sm:px-8 md:pt-28" : "min-h-screen scroll-mt-20 px-4 py-8 sm:px-8"}>
+    <section {...swipeHandlers} id="services" className={compact ? "touch-pan-y scroll-mt-20 px-4 pb-12 pt-12 sm:px-8 md:pt-28" : "min-h-screen touch-pan-y scroll-mt-20 px-4 py-8 sm:px-8"}>
       <div className={`mx-auto w-full overflow-hidden rounded-[2rem] bg-black ${compact ? "" : "min-h-[85vh]"}`}>
         <div className="grid lg:grid-cols-[1.1fr_0.9fr]">
           <div className="relative min-h-[420px] lg:min-h-[85vh] ">
             <Image src={active.image} alt={active.title} fill priority className="object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/20" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-black/20" />
             <div className="absolute inset-0 flex items-end p-6 sm:p-10 lg:p-14">
               <div className="max-w-3xl text-white">
                 <p className="mb-3 text-[11px] font-bold tracking-[0.3em] text-white/60">SERVICES</p>
@@ -54,14 +57,14 @@ export default function ServiceSlider({ services, compact = false }: Props) {
                     href={`/listings?type=${encodeURIComponent(targetType)}`}
                     className="rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-dark transition hover:bg-brand-gold hover:text-white"
                   >
-                    View matching properties
+                    <span className="flex items-center gap-2">نمونه کارهای مرتبط <ArrowLeft className="h-4 w-4" aria-hidden /></span>
                   </Link>
-                  <Link
+                  {/* <Link
                     href="/services"
                     className="rounded-full border border-white/30 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
                   >
                     Explore services
-                  </Link>
+                  </Link> */}
                 </div>
               </div>
             </div>
@@ -110,8 +113,8 @@ export default function ServiceSlider({ services, compact = false }: Props) {
                 <div className="min-w-0"><p className="text-[10px] uppercase tracking-[0.18em] text-white/45">{active.serviceType}</p><h4 className="mt-2 text-base font-black leading-6">{active.title}</h4></div>
               </div>
               <div className="flex items-center justify-between border-t border-white/15 p-4">
-                <Link href={`/listings?type=${encodeURIComponent(targetType)}`} className="text-xs font-bold text-white/70">مشاهده املاک مرتبط ←</Link>
-                <div className="flex gap-2"><SliderArrow label="سرویس قبلی" onClick={previous}>→</SliderArrow><SliderArrow label="سرویس بعدی" onClick={next}>←</SliderArrow></div>
+                <Link href={`/listings?type=${encodeURIComponent(targetType)}`} className="flex items-center gap-2 text-xs font-bold text-white/70">مشاهده املاک مرتبط <ArrowLeft className="h-4 w-4" aria-hidden /></Link>
+                <div className="flex gap-2"><SliderArrow label="سرویس قبلی" onClick={previous}><ArrowRight className="h-5 w-5" /></SliderArrow><SliderArrow label="سرویس بعدی" onClick={next}><ArrowLeft className="h-5 w-5" /></SliderArrow></div>
               </div>
             </article>
 

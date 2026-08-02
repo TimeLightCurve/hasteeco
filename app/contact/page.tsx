@@ -1,6 +1,7 @@
 import { getCompanySettings } from "@/lib/company-settings"
 import type { Metadata } from "next"
 import Image from "next/image"
+import { ArrowLeft } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "تماس با ما | هاستکو",
@@ -42,7 +43,7 @@ export default async function ContactPage() {
             <label className="block"><span className="mb-2 block text-base font-bold text-stone-500">پیام شما</span><textarea name="message" rows={5} required placeholder="چطور می‌توانیم کمکتان کنیم؟" className="w-full resize-y border-0 border-b border-stone-300 bg-transparent px-0 py-3 text-sm leading-7 outline-none placeholder:text-stone-400 focus:border-brand-green" /></label>
             <div className="flex flex-col items-start justify-between gap-5 pt-3 sm:flex-row sm:items-center">
               <p className="max-w-sm text-[11px] leading-6 text-stone-400">با ارسال فرم، برنامه ایمیل دستگاه شما برای فرستادن پیام به هاستکو باز می‌شود.</p>
-              <button type="submit" className="rounded-full bg-brand-dark px-8 py-4 text-sm font-bold text-white transition hover:bg-brand-green">ارسال پیام ←</button>
+              <button type="submit" className="flex items-center gap-2 rounded-full bg-brand-dark px-8 py-4 text-sm font-bold text-white transition hover:bg-brand-green">ارسال پیام <ArrowLeft className="h-4 w-4" aria-hidden /></button>
             </div>
           </form>
         </div>

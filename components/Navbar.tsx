@@ -91,7 +91,7 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
   if (pathname === "/login" || pathname.startsWith("/admin")) return null
 
   return (
-    <header className="fixed top-8 right-8  z-50 bg-white/10 backdrop-blur-lg shadow-sm rounded-full">
+    <header className="fixed inset-x-4 top-4 z-50 rounded-3xl bg-black/85 shadow-xl backdrop-blur-xl md:inset-x-auto md:right-8 md:top-8 md:rounded-full md:bg-white/10 md:shadow-sm">
       <div className="h-full mx-auto px-4 md:px-4">
         <div className="flex  h-full items-center justify-between py-3 gap-4">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
@@ -157,7 +157,7 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
             )}
           </nav>
 
-          {/* <div className="flex flex-col-reverse items-center gap-3 flex-shrink-0">
+          <div className="flex flex-col-reverse items-center gap-3 flex-shrink-0">
             <div className="hidden md:flex flex-col items-end leading-tight" />
             <div className="hidden md:flex w-10 h-10 bg-brand-dark rounded-full items-center justify-center flex-shrink-0">
               <svg
@@ -175,9 +175,10 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
             </div>
 
             <button
-              className="md:hidden p-2 text-white"
+              className="grid h-10 w-10 place-items-center rounded-full border border-white/20 text-white transition hover:bg-white/10 md:hidden"
               onClick={() => setMobileOpen((v) => !v)}
-              aria-label="Ù…Ù†Ùˆ"
+              aria-label={mobileOpen ? "بستن منو" : "باز کردن منو"}
+              aria-expanded={mobileOpen}
             >
               {mobileOpen ? (
                 <svg
@@ -205,18 +206,18 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
                 </svg>
               )}
             </button>
-          </div> */}
+          </div>
         </div>
 
         {mobileOpen && (
-          <div className="md:hidden border-t border-gray-100 py-3 space-y-0.5">
+          <div className="space-y-1 border-t border-white/15 pb-3 pt-3 md:hidden">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`block px-4 py-2.5 text-sm rounded-lg ${pathname === link.href
-                    ? "bg-brand-dark/5 text-brand-dark font-semibold"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-brand-dark"
+                className={`block rounded-xl px-4 py-3 text-sm ${pathname === link.href
+                    ? "bg-white text-brand-dark font-bold"
+                    : "text-white/75 hover:bg-white/10 hover:text-white"
                   }`}
                 onClick={() => setMobileOpen(false)}
                 aria-label={link.label}
@@ -224,12 +225,12 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
               >
                 <span className="flex items-center gap-3">
                   <link.icon className="h-5 w-5" />
-                  <span className="sr-only">{link.label}</span>
+                  <span>{link.label}</span>
                 </span>
               </Link>
             ))}
-            <div className="px-4 pt-3 mt-2 border-t border-gray-100 flex items-center gap-3">
-              <div className="w-8 h-8 bg-brand-dark rounded-full flex items-center justify-center">
+            <div className="mt-2 flex items-center gap-3 border-t border-white/15 px-4 pt-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
                 <svg
                   width="14"
                   height="14"
@@ -244,8 +245,8 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
                 </svg>
               </div>
               <div>
-                <p className="text-base text-gray-400">شماره تماس</p>
-                <a href={`tel:${settings.phone}`} className="text-sm font-bold text-gray-800" dir="ltr">{settings.phoneDisplay}</a>
+                <p className="text-xs text-white/45">شماره تماس</p>
+                <a href={`tel:${settings.phone}`} className="text-sm font-bold text-white" dir="ltr">{settings.phoneDisplay}</a>
               </div>
             </div>
           </div>

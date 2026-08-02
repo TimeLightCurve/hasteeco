@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "درباره ما | هاستکو",
@@ -41,7 +42,7 @@ export default function AboutPage() {
           <p className="text-base font-bold tracking-[0.22em] text-brand-gold">نگاه ما</p>
           <h2 className="mt-5 text-4xl font-black leading-tight sm:text-6xl">ملک خوب، آغاز یک داستان ماندگار است.</h2>
           <p className="mt-8 text-base leading-9 text-stone-600">از نخستین گفت‌وگو تا بازدید، ارزیابی و نهایی‌شدن قرارداد، تیم ما کنار شماست. تجربه محلی، تحلیل دقیق و شناخت معماری به ما کمک می‌کند گزینه‌هایی پیشنهاد دهیم که با سبک زندگی و هدف مالی شما هماهنگ باشند.</p>
-          <Link href="/projects" className="mt-10 w-fit rounded-full bg-brand-dark px-7 py-4 text-sm font-bold text-white transition hover:bg-brand-green">مشاهده پروژه‌های ما ←</Link>
+          <Link href="/projects" className="mt-10 flex w-fit items-center gap-2 rounded-full bg-brand-dark px-7 py-4 text-sm font-bold text-white transition hover:bg-brand-green">مشاهده پروژه‌های ما <ArrowLeft className="h-4 w-4" aria-hidden /></Link>
         </div>
       </section>
 
@@ -60,7 +61,7 @@ export default function AboutPage() {
       <section className="px-6 py-24 sm:px-10 lg:px-16 lg:py-32">
         <div className="mx-auto flex max-w-[1500px] flex-col items-start justify-between gap-8 rounded-[2rem] bg-brand-gold p-8 text-white sm:p-12 lg:flex-row lg:items-end lg:p-16">
           <div><p className="text-base font-bold tracking-[0.2em] text-white/65">شروع یک همکاری</p><h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight sm:text-6xl">برای انتخاب بعدی شما آماده‌ایم.</h2></div>
-          <Link href="/contact" className="shrink-0 rounded-full bg-black px-8 py-4 text-sm font-bold text-white transition hover:bg-brand-dark">ارتباط با ما ←</Link>
+          <Link href="/contact" className="flex shrink-0 items-center gap-2 rounded-full bg-black px-8 py-4 text-sm font-bold text-white transition hover:bg-brand-dark">ارتباط با ما <ArrowLeft className="h-4 w-4" aria-hidden /></Link>
         </div>
       </section>
     </main>

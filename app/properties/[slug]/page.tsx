@@ -31,13 +31,13 @@ export default async function PropertyPage({ params }: PageProps) {
     <main className="bg-[#f4f2ed] text-brand-dark">
       <section className="relative overflow-hidden bg-stone-900">
         <PropertyGallery images={property.images} title={property.title} />
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 mx-auto flex max-w-9xl items-start justify-between gap-5 px-5 pt-7 text-white sm:px-16 sm:pt-36">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 mx-auto flex max-w-9xl items-start justify-between gap-5 px-5 pt-24 text-white sm:px-16 sm:pt-36">
           <div>
             <p className="mb-3 text-base font-bold tracking-[0.2em] text-white/70" dir="ltr">
               HASTE ECO — PROPERTY {property.listingId}
             </p>
             <h1 className="max-w-9xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl lg:text-[10rem]">
-              {property.title}
+              {property.titleFa}
             </h1>
           </div>
           <Link href="#contact" className="pointer-events-auto hidden rounded-full border border-white/40 bg-white/10 px-6 py-3 text-sm font-bold backdrop-blur transition hover:bg-white hover:text-brand-dark sm:block">
@@ -80,7 +80,7 @@ export default async function PropertyPage({ params }: PageProps) {
           <div className="flex w-full">
             <div className="flex flex-col w-1/2 gap-4">
               <h3 className=" text-2xl font-bold text-black/80 leading-[0.95] tracking-tight sm:text-3xl lg:text-4xl">
-                {property.title}
+                {property.titleFa}
               </h3>
               <h1 className="text-6xl font-black leading-[0.95] tracking-tight sm:text-3xl lg:text-9xl">
                 {number.format(property.buildingAreaSqM)} متر مربع

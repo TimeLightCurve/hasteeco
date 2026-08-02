@@ -7,6 +7,7 @@ export interface Property {
   listingId: number;
   slug: string;
   title: string;
+  titleFa: string;
   summary: string;
   description: string;
   propertyType: string;

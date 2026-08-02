@@ -24,7 +24,7 @@ export default async function ListingsPage({ searchParams }: PageProps) {
               </div>
               <div className="p-6">
                 <p className="text-base font-bold text-brand-gold">شناسه {new Intl.NumberFormat("fa-IR").format(property.listingId)}</p>
-                <h2 className="mt-2 text-xl font-black text-brand-dark">{property.title}</h2>
+                <h2 className="mt-2 text-xl font-black text-brand-dark">{property.titleFa}</h2>
                 <p className="mt-3 text-sm text-stone-400">{property.location.address}</p>
                 <div className="mt-5 flex justify-between border-t border-stone-100 pt-5 text-base font-bold text-stone-500">
                   <span>{property.buildingAreaSqM} متر بنا</span><span>{property.bedrooms} خواب</span><span>{property.parkingSpaces} پارکینگ</span>

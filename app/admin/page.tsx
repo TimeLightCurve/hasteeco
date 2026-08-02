@@ -2,6 +2,7 @@ import { requireAdmin } from "@/auth"
 import { getDashboardMetrics, getManagedProperties } from "@/lib/admin-properties"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
 
 export default async function AdminDashboard() {
   if (!(await requireAdmin())) redirect("/login?callbackUrl=/admin")
@@ -26,7 +27,7 @@ export default async function AdminDashboard() {
         <Metric label="پروژه‌های ما" value={number.format(metrics.projects)} note="نمایش در اسلایدر پروژه‌ها" color="bg-sky-700" />
       </div>
       <section className="mt-10 overflow-hidden rounded-3xl border border-stone-200 bg-white">
-        <div className="flex items-center justify-between border-b border-stone-100 p-6"><div><h2 className="text-lg font-black">آخرین املاک</h2><p className="mt-1 text-base text-stone-400">مدیریت سریع آگهی‌های ثبت‌شده</p></div><Link href="/admin/properties" className="text-base font-bold text-brand-green">مشاهده همه ←</Link></div>
+        <div className="flex items-center justify-between border-b border-stone-100 p-6"><div><h2 className="text-lg font-black">آخرین املاک</h2><p className="mt-1 text-base text-stone-400">مدیریت سریع آگهی‌های ثبت‌شده</p></div><Link href="/admin/properties" className="flex items-center gap-2 text-base font-bold text-brand-green">مشاهده همه <ArrowLeft className="h-4 w-4" aria-hidden /></Link></div>
         <div className="overflow-x-auto"><table className="w-full min-w-[680px] text-right text-sm"><thead className="bg-stone-50 text-[11px] text-stone-400"><tr><th className="px-6 py-4">ملک</th><th className="px-6 py-4">شناسه</th><th className="px-6 py-4">وضعیت</th><th className="px-6 py-4">شهر</th><th className="px-6 py-4">قیمت</th></tr></thead><tbody className="divide-y divide-stone-100">{properties.slice(0, 6).map((property) => <tr key={property.listingId} className="hover:bg-stone-50"><td className="px-6 py-4 font-bold">{property.title}</td><td className="px-6 py-4 text-stone-400">#{property.listingId}</td><td className="px-6 py-4"><span className="rounded-full bg-brand-green/10 px-3 py-1 text-[10px] font-bold text-brand-green">{property.status === "for-sale" ? "فروش" : "اجاره"}</span></td><td className="px-6 py-4">{property.location.city}</td><td className="px-6 py-4 font-bold">{number.format(property.price.amount)} تومان</td></tr>)}</tbody></table></div>
       </section>
     </div>

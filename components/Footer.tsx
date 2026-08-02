@@ -4,6 +4,7 @@ import type { CompanySettings } from "@/lib/company-settings"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { SVGProps } from "react"
+import { ArrowLeft } from "lucide-react"
 
 const primaryLinks = [
   { label: "خانه", href: "/" },
@@ -63,13 +64,13 @@ export default function Footer({ settings }: { settings: CompanySettings }) {
               <p><a dir="ltr" href={`tel:${settings.phone}`} className="inline-block transition hover:text-white">{settings.phoneDisplay}</a></p>
               <p><a dir="ltr" href={`mailto:${settings.email}`} className="inline-block transition hover:text-white">{settings.email}</a></p>
             </address>
-            <Link href="/contact" className="mt-8 inline-flex items-center gap-3 rounded-full bg-white px-6 py-3.5 text-base font-bold text-brand-dark transition hover:bg-brand-gold hover:text-white">درخواست مشاوره <span aria-hidden>←</span></Link>
+            <Link href="/contact" className="mt-8 inline-flex items-center gap-3 rounded-full bg-white px-6 py-3.5 text-base font-bold text-brand-dark transition hover:bg-brand-gold hover:text-white">درخواست مشاوره <ArrowLeft className="h-4 w-4" aria-hidden /></Link>
           </div>
         </div>
 
         <div className="flex flex-col gap-5 border-b border-white/12 py-10 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-xl text-sm leading-7 text-white/45">برای آگاهی از تازه‌ترین املاک و پروژه‌های منتخب، شبکه‌های اجتماعی هاستکو را دنبال کنید.</p>
-          <Link href="/listings" className="group flex items-center gap-5 text-sm font-bold"><span>مشاهده تمام املاک</span><span className="grid h-10 w-10 place-items-center rounded-full border border-white/25 transition group-hover:border-white group-hover:bg-white group-hover:text-black">←</span></Link>
+          <Link href="/listings" className="group flex items-center gap-5 text-sm font-bold"><span>مشاهده تمام املاک</span><span className="grid h-10 w-10 place-items-center rounded-full border border-white/25 transition group-hover:border-white group-hover:bg-white group-hover:text-black"><ArrowLeft className="h-4 w-4" aria-hidden /></span></Link>
         </div>
 
         <div className="flex flex-col-reverse gap-4 pt-8 text-[11px] text-white/35 sm:flex-row sm:items-center sm:justify-between">

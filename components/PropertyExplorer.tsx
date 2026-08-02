@@ -3,11 +3,18 @@
 import type { Property } from "@/lib/properties"
 import Image from "next/image"
 import Link from "next/link"
+import dynamic from "next/dynamic"
+import { ArrowUpLeft } from "lucide-react"
 import { useMemo, useState } from "react"
 
 type Props = {
   properties: Property[]
 }
+
+const PropertyMap = dynamic(() => import("@/components/PropertyMap"), {
+  ssr: false,
+  loading: () => <div className="grid h-full place-items-center bg-stone-200 text-sm text-stone-500">در حال بارگذاری نقشه…</div>,
+})
 
 const typeLabels: Record<string, string> = {
   villa: "ویلا",
@@ -43,7 +50,7 @@ export default function PropertyExplorer({ properties }: Props) {
       if (city && property.location.city !== city) return false
       return (
         !normalizedQuery ||
-        [property.title, property.location.address, String(property.listingId)].some((value) =>
+        [property.title, property.titleFa, property.location.address, String(property.listingId)].some((value) =>
           value.toLowerCase().includes(normalizedQuery),
         )
       )
@@ -52,10 +59,6 @@ export default function PropertyExplorer({ properties }: Props) {
 
   const selected =
     filtered.find((property) => property.slug === selectedSlug) ?? filtered[0] ?? properties[0]
-
-  const mapUrl = selected
-    ? `https://www.google.com/maps?q=${selected.location.coordinates.latitude},${selected.location.coordinates.longitude}&z=14&output=embed`
-    : "https://www.google.com/maps?q=Iran&z=5&output=embed"
 
   return (
     <section id="property-search" className="px-4 py-20 sm:px-8 lg:py-28">
@@ -112,18 +115,15 @@ export default function PropertyExplorer({ properties }: Props) {
               </div>
 
               {selected ? (
-                <article className="overflow-hidden rounded-3xl bg-transparent flex flex-col gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedSlug(selected.slug)}
-                    className="relative block h-64 w-full overflow-hidden text-right sm:h-72 rounded-4xl"
-                  >
+                <article className="overflow-hidden rounded-3xl bg-transparent">
+                  <Link href={`/properties/${selected.slug}`} className="group flex flex-col gap-4" aria-label={`مشاهده ${selected.titleFa}`}>
+                  <div className="relative block h-64 w-full overflow-hidden text-right sm:h-72 rounded-4xl">
                     <Image
                       src={selected.images[0]}
-                      alt={selected.title}
+                      alt={selected.titleFa}
                       fill
                       sizes="(max-width: 1024px) 100vw, 45vw"
-                      className="object-cover transition duration-700 hover:scale-[1.03]"
+                      className="object-cover transition duration-700 group-hover:scale-[1.03]"
                     />
                     <span className="absolute right-4 top-4 rounded-full bg-white/90 px-4 py-2 text-base md:text-lg font-bold text-brand-dark backdrop-blur">
                       {typeLabels[selected.propertyType] ?? selected.propertyType}
@@ -131,23 +131,15 @@ export default function PropertyExplorer({ properties }: Props) {
                     <span className="absolute bottom-4 left-4 rounded-full bg-brand-dark px-4 py-2 text-base font-bold text-white">
                       شناسه {new Intl.NumberFormat("fa-IR").format(selected.listingId)}
                     </span>
-                  </button>
+                  </div>
                   <div className="p-5 sm:p-6 bg-brand-dark rounded-4xl overflow-hidden">
                     <p className="mb-2 text-base md:text-lg font-semibold text-stone-400">{selected.location.address}</p>
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <h3 className="text-xl font-extrabold text-white sm:text-2xl">{selected.title}</h3>
+                        <h3 className="text-xl font-extrabold text-white sm:text-2xl">{selected.titleFa}</h3>
                         <p className="mt-2 text-sm font-bold text-white/70">{formatPrice(selected)}</p>
                       </div>
-                      <Link
-                        href={`/properties/${selected.slug}`}
-                        className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-brand-dark transition hover:bg-brand-green"
-                        aria-label="مشاهده ملک"
-                      >
-                        <span aria-hidden className="text-lg">
-                          ↖
-                        </span>
-                      </Link>
+                      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-brand-dark transition group-hover:bg-brand-green group-hover:text-white"><ArrowUpLeft className="h-5 w-5" aria-hidden /></span>
                     </div>
                     <div className="mt-6 grid grid-cols-4 divide-x divide-x-reverse divide-stone-100 rounded-2xl bg-stone-50 py-4 text-center">
                       <Stat value={selected.buildingAreaSqM} label="متر بنا" />
@@ -156,6 +148,7 @@ export default function PropertyExplorer({ properties }: Props) {
                       <Stat value={selected.parkingSpaces} label="پارکینگ" />
                     </div>
                   </div>
+                  </Link>
                 </article>
               ) : (
                 <div className="grid flex-1 place-items-center rounded-3xl bg-white p-10 text-center text-stone-400">
@@ -172,7 +165,7 @@ export default function PropertyExplorer({ properties }: Props) {
                       className={`whitespace-nowrap rounded-full px-4 py-2 text-base font-bold ${selected?.slug === property.slug ? "bg-brand-dark text-white" : "bg-white text-stone-500"
                         }`}
                     >
-                      {property.title}
+                      {property.titleFa}
                     </button>
                   ))}
                 </div>
@@ -180,14 +173,9 @@ export default function PropertyExplorer({ properties }: Props) {
             </div>
 
             <div className="relative min-h-[420px] lg:col-span-2 lg:min-h-full">
-              <iframe
-                key={mapUrl}
-                title="موقعیت ملک در گوگل مپ"
-                src={mapUrl}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="absolute inset-0 h-full w-full border-0 grayscale-20 rounded-4xl overflow-hidden shadow-[0_30px_80px_rgba(30,58,47,0.26)]"
-              />
+              <div className="absolute inset-0 overflow-hidden rounded-4xl shadow-[0_30px_80px_rgba(30,58,47,0.26)]">
+                <PropertyMap properties={filtered} selectedSlug={selected?.slug} onSelect={setSelectedSlug} />
+              </div>
               {selected && (
                 <div className="pointer-events-none absolute left-5 top-5 rounded-2xl bg-brand-dark/95 px-5 py-4 text-white shadow-xl backdrop-blur sm:left-8 sm:top-8">
                   <p className="text-[10px] text-white/60">موقعیت انتخاب‌شده</p>

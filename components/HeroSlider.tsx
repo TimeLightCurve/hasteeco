@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useHorizontalSwipe } from "@/hooks/useHorizontalSwipe";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const slides = [
   {
@@ -56,9 +58,11 @@ export default function HeroSlider() {
   }, [paused, next]);
 
   const activeSlide = slides[current];
+  const swipeHandlers = useHorizontalSwipe(next, prev);
 
   return (
     <div
+      {...swipeHandlers}
       className="relative min-h-[100svh] w-full overflow-hidden bg-stone-900"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -111,18 +115,7 @@ export default function HeroSlider() {
         className="absolute right-4 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors hover:bg-white/40 md:flex"
         aria-label="اسلاید قبلی"
       >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M9 18l6-6-6-6" />
-        </svg>
+        <ArrowRight className="h-5 w-5" aria-hidden />
       </button>
 
       {/* Next arrow — visual left (RTL: end side) */}
@@ -131,18 +124,7 @@ export default function HeroSlider() {
         className="absolute left-4 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors hover:bg-white/40 md:flex"
         aria-label="اسلاید بعدی"
       >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
+        <ArrowLeft className="h-5 w-5" aria-hidden />
       </button>
 
       {/* Dot indicators */}
@@ -168,7 +150,7 @@ export default function HeroSlider() {
               <p className="text-[10px] font-bold tracking-[0.2em] text-white/45">HASTE ECO / {String(current + 1).padStart(2, "0")}</p>
               <p className="mt-3 line-clamp-2 text-sm leading-6 text-white/70">{activeSlide.subtext}</p>
             </div>
-            <Link href={activeSlide.ctaHref} className="w-fit text-xs font-bold text-white transition hover:text-brand-gold">{activeSlide.cta} ←</Link>
+            <Link href={activeSlide.ctaHref} className="flex w-fit items-center gap-2 text-xs font-bold text-white transition hover:text-brand-gold">{activeSlide.cta}<ArrowLeft className="h-4 w-4" aria-hidden /></Link>
           </div>
           <div className="flex items-end gap-2 border-r border-white/15 p-5">
             <MobileArrow label="اسلاید قبلی" onClick={prev} direction="right" />
@@ -181,5 +163,5 @@ export default function HeroSlider() {
 }
 
 function MobileArrow({ label, onClick, direction }: { label: string; onClick: () => void; direction: "left" | "right" }) {
-  return <button type="button" aria-label={label} onClick={onClick} className="grid h-11 w-11 place-items-center rounded-full border border-white/35 text-lg transition hover:bg-white hover:text-black">{direction === "left" ? "←" : "→"}</button>;
+  return <button type="button" aria-label={label} onClick={onClick} className="grid h-11 w-11 place-items-center rounded-full border border-white/35 transition hover:bg-white hover:text-black">{direction === "left" ? <ArrowLeft className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}</button>;
 }

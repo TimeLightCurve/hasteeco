@@ -2,6 +2,7 @@ import { logoutAction } from "@/app/admin/actions"
 import { auth } from "@/auth"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { ExternalLink } from "lucide-react"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -34,7 +35,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <span>⚙</span> اطلاعات شرکت
           </Link>
           <Link href="/" className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-white/65 transition hover:bg-white/10 hover:text-white">
-            <span>↗</span> مشاهده وب‌سایت
+            <ExternalLink className="h-4 w-4" aria-hidden /> مشاهده وب‌سایت
           </Link>
         </nav>
         <div className="mt-auto border-t border-white/10 pt-5">
