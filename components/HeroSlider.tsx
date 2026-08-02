@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 
 const slides = [
   {
@@ -54,9 +55,11 @@ export default function HeroSlider() {
     return () => clearInterval(t);
   }, [paused, next]);
 
+  const activeSlide = slides[current];
+
   return (
     <div
-      className="relative w-full h-screen min-h-[500px] overflow-hidden"
+      className="relative min-h-[100svh] w-full overflow-hidden bg-stone-900"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -81,7 +84,7 @@ export default function HeroSlider() {
           <div className="absolute inset-0 bg-black/35" />
 
           {/* Text overlay — RTL start = visual right */}
-          <div className="absolute inset-0 flex items-center">
+          <div className="absolute inset-0 flex items-center pb-48 md:pb-0">
             <div className="w-full mx-auto px-8 md:px-36">
               <div className="max-w-2xl space-y-5 text-white">
                 <h1 className="text-3xl md:text-8xl font-black leading-tight drop-shadow-md">
@@ -105,7 +108,7 @@ export default function HeroSlider() {
       {/* Prev arrow — visual right (RTL: start side) */}
       <button
         onClick={prev}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors"
+        className="absolute right-4 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors hover:bg-white/40 md:flex"
         aria-label="اسلاید قبلی"
       >
         <svg
@@ -125,7 +128,7 @@ export default function HeroSlider() {
       {/* Next arrow — visual left (RTL: end side) */}
       <button
         onClick={next}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors"
+        className="absolute left-4 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors hover:bg-white/40 md:flex"
         aria-label="اسلاید بعدی"
       >
         <svg
@@ -143,7 +146,7 @@ export default function HeroSlider() {
       </button>
 
       {/* Dot indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+      <div className="absolute bottom-8 left-1/2 z-20 hidden -translate-x-1/2 gap-2 md:flex">
         {slides.map((_, i) => (
           <button
             key={i}
@@ -157,6 +160,26 @@ export default function HeroSlider() {
           />
         ))}
       </div>
+
+      <div className="absolute inset-x-0 bottom-0 z-20 bg-black text-white md:hidden">
+        <div className="grid min-h-44 grid-cols-[1fr_auto]">
+          <div className="flex min-w-0 flex-col justify-between gap-4 p-6">
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.2em] text-white/45">HASTE ECO / {String(current + 1).padStart(2, "0")}</p>
+              <p className="mt-3 line-clamp-2 text-sm leading-6 text-white/70">{activeSlide.subtext}</p>
+            </div>
+            <Link href={activeSlide.ctaHref} className="w-fit text-xs font-bold text-white transition hover:text-brand-gold">{activeSlide.cta} ←</Link>
+          </div>
+          <div className="flex items-end gap-2 border-r border-white/15 p-5">
+            <MobileArrow label="اسلاید قبلی" onClick={prev} direction="right" />
+            <MobileArrow label="اسلاید بعدی" onClick={next} direction="left" />
+          </div>
+        </div>
+      </div>
     </div>
   );
+}
+
+function MobileArrow({ label, onClick, direction }: { label: string; onClick: () => void; direction: "left" | "right" }) {
+  return <button type="button" aria-label={label} onClick={onClick} className="grid h-11 w-11 place-items-center rounded-full border border-white/35 text-lg transition hover:bg-white hover:text-black">{direction === "left" ? "←" : "→"}</button>;
 }

@@ -73,8 +73,8 @@ export default function PropertyExplorer({ properties }: Props) {
         </div>
 
         <div className=" bg-transparent ">
-          <div className="grid min-h-[670px] lg:grid-cols-5">
-            <div className="relative z-10 flex flex-col gap-5 p-4 sm:p-6 lg:px-2 lg:py-0 col-span-3">
+          <div className="grid gap-6 lg:min-h-[670px] lg:grid-cols-5">
+            <div className="relative z-10 flex min-w-0 flex-col gap-5 p-0 sm:p-6 lg:col-span-3 lg:px-2 lg:py-0">
               <div className="grid gap-3 rounded-2xl bg-white p-3 shadow-sm sm:grid-cols-3">
                 <label className="rounded-xl bg-stone-50 px-4 py-3">
                   <span className="mb-1 block text-[11px] font-bold text-stone-400">نوع ملک</span>
@@ -179,7 +179,7 @@ export default function PropertyExplorer({ properties }: Props) {
               )}
             </div>
 
-            <div className="relative min-h-[480px]  lg:min-h-full col-span-2 ">
+            <div className="relative min-h-[420px] lg:col-span-2 lg:min-h-full">
               <iframe
                 key={mapUrl}
                 title="موقعیت ملک در گوگل مپ"

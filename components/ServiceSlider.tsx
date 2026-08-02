@@ -34,11 +34,13 @@ export default function ServiceSlider({ services, compact = false }: Props) {
 
   const active = services[current]
   const targetType = active.relatedPropertyType ?? fallbackTypeMap[active.serviceType] ?? "villa"
+  const next = () => setCurrent((value) => (value + 1) % services.length)
+  const previous = () => setCurrent((value) => (value - 1 + services.length) % services.length)
 
   return (
-    <section id="services" className={compact ? "scroll-mt-20 px-4 py-12 sm:px-8 h-screen mb-16" : "min-h-screen scroll-mt-20 px-4 py-8 sm:px-8"}>
-      <div className={`mx-auto w-full overflow-hidden rounded-[2rem] bg-black ${compact ? "w-full " : "min-h-[85vh]"}`}>
-        <div className="grid min-h-[inherit] lg:grid-cols-[1.1fr_0.9fr]">
+    <section id="services" className={compact ? "scroll-mt-20 px-4 pb-12 pt-12 sm:px-8 md:pt-28" : "min-h-screen scroll-mt-20 px-4 py-8 sm:px-8"}>
+      <div className={`mx-auto w-full overflow-hidden rounded-[2rem] bg-black ${compact ? "" : "min-h-[85vh]"}`}>
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr]">
           <div className="relative min-h-[420px] lg:min-h-[85vh] ">
             <Image src={active.image} alt={active.title} fill priority className="object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/20" />
@@ -74,24 +76,24 @@ export default function ServiceSlider({ services, compact = false }: Props) {
               </p> */}
             </div>
 
-            <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-2">
+            <div className="hidden gap-2 sm:grid sm:grid-cols-2 lg:grid-cols-2">
               {services.map((service, index) => (
                 <button
                   key={service.serviceType}
                   onClick={() => setCurrent(index)}
-                  className={`group flex items-center gap-4  border p-3 text-right transition ${index === current
+                  className={`group flex min-w-0 items-center gap-3 border p-3 text-right transition ${index === current
                       ? "border-brand-dark bg-black text-white"
                       : "border-stone-200 bg-white hover:border-brand-dark/40 hover:bg-white"
                     }`}
                 >
-                  <div className="relative h-42 w-42 overflow-hidden bg-stone-100">
+                  <div className="relative h-24 w-28 shrink-0 overflow-hidden bg-stone-100 sm:h-36 sm:w-36 lg:h-32 lg:w-32">
                     <Image src={service.image} alt={service.title} fill className="object-cover transition duration-500 group-hover:scale-105" />
                   </div>
-                  <div className="min-w-0 flex gap-4">
+                  <div className="min-w-0 flex-1">
                     {/* <p className={`text-[11px] font-bold tracking-[0.2em] ${index === current ? "text-white/60" : "text-stone-400"}`}>
                       {service.serviceType}
                     </p> */}
-                    <h4 className="mt-1  text-lg font-black">{service.title}</h4>
+                    <h4 className="mt-1 text-sm font-black leading-6 sm:text-base">{service.title}</h4>
                     {/* <p className={`mt-1 line-clamp-2 text-base md:text-base leading-5 ${index === current ? "text-white/70" : "text-stone-500"}`}>
                       {service.description}
                     </p> */}
@@ -100,7 +102,20 @@ export default function ServiceSlider({ services, compact = false }: Props) {
               ))}
             </div>
 
-            <div className="flex items-center justify-between gap-4">
+            <article className="overflow-hidden rounded-2xl bg-black text-white sm:hidden">
+              <div className="flex items-center gap-4 p-3">
+                <div className="relative h-24 w-28 shrink-0 overflow-hidden rounded-xl">
+                  <Image src={active.image} alt={active.title} fill className="object-cover" />
+                </div>
+                <div className="min-w-0"><p className="text-[10px] uppercase tracking-[0.18em] text-white/45">{active.serviceType}</p><h4 className="mt-2 text-base font-black leading-6">{active.title}</h4></div>
+              </div>
+              <div className="flex items-center justify-between border-t border-white/15 p-4">
+                <Link href={`/listings?type=${encodeURIComponent(targetType)}`} className="text-xs font-bold text-white/70">مشاهده املاک مرتبط ←</Link>
+                <div className="flex gap-2"><SliderArrow label="سرویس قبلی" onClick={previous}>→</SliderArrow><SliderArrow label="سرویس بعدی" onClick={next}>←</SliderArrow></div>
+              </div>
+            </article>
+
+            <div className="hidden items-center justify-between gap-4 sm:flex">
               <div className="flex gap-2">
                 {services.map((service, index) => (
                   <button
@@ -120,4 +135,8 @@ export default function ServiceSlider({ services, compact = false }: Props) {
       </div>
     </section>
   )
+}
+
+function SliderArrow({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+  return <button type="button" aria-label={label} onClick={onClick} className="grid h-10 w-10 place-items-center rounded-full border border-white/30 transition hover:bg-white hover:text-black">{children}</button>
 }

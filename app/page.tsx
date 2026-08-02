@@ -16,10 +16,19 @@ export default async function Home() {
 
   return (
     <main className="flex flex-1 flex-col bg-[#f4f2ed]">
-      <section><HeroSlider /></section>
-      <div className="absolute -bottom-16 left-0 z-20 mx-auto w-full max-w-2xl px-4 sm:px-0">
-        <SearchBar />
-      </div>
+      <section className="relative">
+        <HeroSlider />
+        <div className="absolute inset-x-0 md:inset-x-auto  md:left-10 -bottom-16 z-20 mx-auto hidden w-full max-w-2xl md:flex justify-end">
+          <SearchBar />
+        </div>
+      </section>
+      <section className="bg-[#f4f2ed] px-4 py-12 md:hidden">
+        <div className="mx-auto max-w-2xl">
+          <p className="text-xs font-bold tracking-[0.18em] text-brand-gold">جست‌وجوی ملک</p>
+          <h2 className="mb-7 mt-3 text-3xl font-black text-brand-dark">ملک مناسب خود را پیدا کنید</h2>
+          <SearchBar />
+        </div>
+      </section>
       <ServiceSlider services={services} compact />
       <OurProjectsSlider projects={projects} />
       <PropertyExplorer properties={properties} />

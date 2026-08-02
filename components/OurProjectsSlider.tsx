@@ -4,7 +4,7 @@ import type { Property } from "@/lib/properties"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 
-export default function OurProjectsSlider({ projects, projectPage }: { projects: Property[]; projectPage?: boolean }) {
+export default function OurProjectsSlider({ projects }: { projects: Property[] }) {
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
   const next = useCallback(() => setCurrent((value) => (value + 1) % projects.length), [projects.length])
@@ -20,7 +20,7 @@ export default function OurProjectsSlider({ projects, projectPage }: { projects:
   const project = projects[current]
 
   return (
-    <section id="projects" className="relative min-h-screen bg-black text-white" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <section id="projects" className="relative min-h-[100svh] overflow-hidden md:overflow-visible bg-black text-white" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       {projects.map((item, index) => (
         <div
           key={item.listingId}
@@ -31,28 +31,28 @@ export default function OurProjectsSlider({ projects, projectPage }: { projects:
       <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/15 to-black/30" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20" />
 
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-[1600px] flex-col justify-between px-6 py-8 sm:px-10 lg:px-14">
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-[1600px] flex-col justify-between px-6 py-8 sm:px-10 lg:px-14">
         <div className="flex items-center justify-between text-base font-bold tracking-[0.18em]">
           <p>HASTE ECO / OUR PROJECTS</p>
           <p>{String(current + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}</p>
         </div>
 
-        <div className="pb-56 sm:pb-52 lg:pb-16">
+        <div className="pb-72 sm:pb-52 lg:pb-16">
           <p className="mb-4 text-base font-bold uppercase tracking-[0.28em] text-white/65">{project.propertyType} · {project.location.city}</p>
           <h2 className="max-w-5xl text-5xl font-black uppercase leading-[0.88] tracking-[-0.055em] sm:text-7xl lg:text-[7.5rem]">{project.title}</h2>
         </div>
       </div>
 
-      <div className={`${projectPage ? "absolute -bottom-0 left-0 z-20 w-full bg-black sm:w-[72%] lg:w-[36%]" : "absolute -bottom-10 left-0 z-20 w-full bg-black sm:w-[72%] lg:w-[36%]"}`}>
-        <div className="grid min-h-44 grid-cols-[1fr_auto] items-stretch">
+      <div className="absolute bottom-0 md:-bottom-10 left-0 z-20 w-full bg-black sm:w-[72%] lg:w-[36%]">
+        <div className="grid min-h-44 grid-cols-1 items-stretch sm:grid-cols-[1fr_auto]">
           <div className="flex flex-col justify-between gap-5 p-6 sm:p-8 lg:px-12">
-            <div className="flex gap-10">
-              <div><p className="text-[20px] text-white/55">House area</p><strong className="mt-1 block text-3xl font-black">{project.buildingAreaSqM} متر مربع</strong></div>
-              <div><p className="text-[20px] text-white/55">Property type</p><strong className="mt-1 block text-lg font-black capitalize">{project.propertyType}</strong></div>
+            <div className="flex gap-8">
+              <div><p className="text-xs text-white/55 sm:text-sm">House area</p><strong className="mt-1 block text-2xl font-black sm:text-3xl">{project.buildingAreaSqM} متر مربع</strong></div>
+              <div><p className="text-xs text-white/55 sm:text-sm">Property type</p><strong className="mt-1 block text-base font-black capitalize sm:text-lg">{project.propertyType}</strong></div>
             </div>
             <Link href={`/properties/${project.slug}`} className="w-fit text-base font-bold uppercase tracking-[0.16em] text-white/70 transition hover:text-white">View project →</Link>
           </div>
-          <div className="flex flex-row-reverse items-end gap-2 border-l border-white/15 p-5 sm:p-7">
+          <div className="flex flex-row-reverse items-end gap-2 border-t border-white/15 p-5 sm:border-l sm:border-t-0 sm:p-7">
             <ArrowButton label="Previous project" onClick={previous} direction="left" />
             <ArrowButton label="Next project" onClick={next} direction="right" />
           </div>
