@@ -3,6 +3,7 @@ import { auth } from "@/auth"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { ExternalLink } from "lucide-react"
+import AdminMobileNav from "@/components/AdminMobileNav"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -51,28 +52,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </aside>
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-stone-200 bg-white/90 px-5 py-4 backdrop-blur lg:mr-64 lg:px-10">
+        <AdminMobileNav />
         <Link href="/admin" className="font-black lg:hidden">
           Hasteeco Admin
         </Link>
-        <nav className="hidden items-center gap-1 sm:flex lg:hidden">
-          <Link href="/admin" className="rounded-lg px-3 py-2 text-base font-bold hover:bg-stone-100">
-            داشبورد
-          </Link>
-          <Link href="/admin/properties" className="rounded-lg px-3 py-2 text-base font-bold hover:bg-stone-100">
-            املاک
-          </Link>
-          <Link href="/admin/services" className="rounded-lg px-3 py-2 text-base font-bold hover:bg-stone-100">
-            سرویس‌ها
-          </Link>
-          <Link href="/admin/projects" className="rounded-lg px-3 py-2 text-base font-bold hover:bg-stone-100">
-            پروژه‌ها
-          </Link>
-          <Link href="/admin/settings" className="rounded-lg px-3 py-2 text-base font-bold hover:bg-stone-100">
-            تنظیمات
-          </Link>
-        </nav>
         <div className="mr-auto flex items-center gap-3">
-          <div className="text-left">
+          <div className="hidden text-left sm:block">
             <p className="text-base font-bold">{session.user.name}</p>
             <p className="text-[10px] text-stone-400">
               {session.user.role === "admin" ? "مدیر سیستم" : "ویرایشگر"}

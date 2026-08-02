@@ -4,6 +4,7 @@ import type { ManagedService } from "@/lib/admin-services"
 import type { ServiceInput } from "@/lib/service-schema"
 import Image from "next/image"
 import { FormEvent, useMemo, useState } from "react"
+import AdminImageManager from "@/components/AdminImageManager"
 
 type Props = { initialServices: ManagedService[] }
 
@@ -94,7 +95,7 @@ export default function AdminServicesManager({ initialServices }: Props) {
                 <Field name="relatedPropertyType" label="Related property type" defaultValue={editing?.relatedPropertyType ?? "villa"} />
                 <Field name="title" label="Title" required defaultValue={editing?.title} />
                 <TextArea name="description" label="Description" required defaultValue={editing?.description} rows={5} />
-                <Field name="image" label="Image path" required defaultValue={editing?.image} />
+                <AdminImageManager name="image" label="تصویر سرویس" initialImages={[editing?.image ?? "/images/properties/villa-130-exterior.png"]} multiple={false} />
                 <Field name="order" label="Order" type="number" required defaultValue={editing?.order ?? 1} />
                 <label className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3.5 text-base font-bold">
                   <input name="active" type="checkbox" defaultChecked={editing?.active ?? true} className="accent-brand-green" />
@@ -145,6 +146,7 @@ function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { l
     </label>
   )
 }
+
 
 function Notice({ message }: { message: { kind: "success" | "error"; text: string } }) {
   return <p role="status" className={`mt-4 rounded-xl px-4 py-3 text-base font-bold ${message.kind === "success" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{message.text}</p>

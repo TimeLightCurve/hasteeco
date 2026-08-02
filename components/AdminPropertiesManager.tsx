@@ -6,6 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FormEvent, useMemo, useState } from "react"
+import AdminImageManager from "@/components/AdminImageManager"
 
 type Props = { initialProperties: ManagedProperty[]; openNewInitially?: boolean; canDelete: boolean; projectMode?: boolean; nextListingIdOverride?: number }
 
@@ -158,7 +159,7 @@ function PropertyForm({ property, nextListingId, onSubmit, pending, message, def
 
       <FormSection title="ویژگی‌ها و تصاویر" description="هر مورد را در یک خط جدا وارد کنید">
         <TextArea name="features" label="ویژگی‌های انگلیسی" dir="ltr" defaultValue={property?.features.join("\n")} rows={5} placeholder="Private pool&#10;Landscaped garden" />
-        <TextArea name="images" label="مسیر محلی تصاویر (شروع با /)" dir="ltr" required defaultValue={property?.images.join("\n") ?? "/images/properties/villa-130-exterior.png"} rows={5} />
+        <AdminImageManager name="images" label="تصاویر ملک" initialImages={property?.images ?? ["/images/properties/villa-130-exterior.png"]} />
       </FormSection>
 
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-stone-200 bg-[#f8f7f4]/95 py-5 backdrop-blur"><button type="submit" disabled={pending} className="rounded-xl bg-brand-dark px-8 py-3.5 text-sm font-bold text-white transition hover:bg-brand-green disabled:opacity-50">{pending ? "در حال ذخیره…" : property ? "ذخیره تغییرات" : "ایجاد ملک"}</button></div>

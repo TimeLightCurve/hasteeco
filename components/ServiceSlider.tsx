@@ -42,7 +42,7 @@ export default function ServiceSlider({ services, compact = false }: Props) {
 
   return (
     <section {...swipeHandlers} id="services" className={compact ? "touch-pan-y scroll-mt-20 px-4 pb-12 pt-12 sm:px-8 md:pt-28" : "min-h-screen touch-pan-y scroll-mt-20 px-4 py-8 sm:px-8"}>
-      <div className={`mx-auto w-full overflow-hidden rounded-[2rem] bg-black ${compact ? "" : "min-h-[85vh]"}`}>
+      <div className={`mx-auto w-full overflow-hidden rounded-0 bg-black ${compact ? "" : "min-h-[85vh]"}`}>
         <div className="grid lg:grid-cols-[1.1fr_0.9fr]">
           <div className="relative min-h-[420px] lg:min-h-[85vh] ">
             <Image src={active.image} alt={active.title} fill priority className="object-cover" />
@@ -70,7 +70,7 @@ export default function ServiceSlider({ services, compact = false }: Props) {
             </div>
           </div>
 
-          <div className="flex flex-col justify-between gap-6 bg-[#f6f3ee] p-6 sm:p-8 lg:min-h-[85vh] lg:p-10">
+          <div className="flex flex-col justify-between gap-6 bg-[#f6f3ee] p-2 sm:p-8 lg:min-h-[85vh] lg:p-10">
             <div>
               {/* <p className="text-base font-bold tracking-[0.22em] text-brand-gold">خدمات ما</p> */}
               <h3 className="mt-3 text-3xl font-black text-brand-dark sm:text-5xl">خدمات ما</h3>
@@ -105,9 +105,9 @@ export default function ServiceSlider({ services, compact = false }: Props) {
               ))}
             </div>
 
-            <article className="overflow-hidden rounded-2xl bg-black text-white sm:hidden">
+            <article className="overflow-hidden rounded-0 bg-black text-white sm:hidden">
               <div className="flex items-center gap-4 p-3">
-                <div className="relative h-24 w-28 shrink-0 overflow-hidden rounded-xl">
+                <div className="relative h-24 w-28 shrink-0 overflow-hidden ">
                   <Image src={active.image} alt={active.title} fill className="object-cover" />
                 </div>
                 <div className="min-w-0"><p className="text-[10px] uppercase tracking-[0.18em] text-white/45">{active.serviceType}</p><h4 className="mt-2 text-base font-black leading-6">{active.title}</h4></div>
