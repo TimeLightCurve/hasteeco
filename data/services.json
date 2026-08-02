@@ -1,0 +1,56 @@
+[
+  {
+    "serviceType": "villa",
+    "relatedPropertyType": "villa",
+    "title": "خرید و فروش انواع ویلا",
+    "description": "خرید، فروش و مشاوره تخصصی برای ویلاهای لوکس، باغ‌ویلاها و فرصت‌های مناسب سرمایه‌گذاری.",
+    "image": "/images/properties/villa-130-exterior.png",
+    "order": 1,
+    "active": true
+  },
+  {
+    "serviceType": "apartment",
+    "relatedPropertyType": "apartment",
+    "title": "آپارتمان و مجتمع مسکونی",
+    "description": "معرفی آپارتمان‌های نوساز و مجتمع‌های مسکونی مناسب زندگی شهری و سرمایه‌گذاری مطمئن.",
+    "image": "/images/properties/villa-130-interior.png",
+    "order": 2,
+    "active": true
+  },
+  {
+    "serviceType": "land",
+    "relatedPropertyType": "land",
+    "title": "زمین مسکونی و تجاری",
+    "description": "زمین‌های مناسب ساخت‌وساز، توسعه پروژه و کاربری‌های مسکونی یا تجاری در موقعیت‌های منتخب.",
+    "image": "/images/properties/villa-130-twilight.png",
+    "order": 3,
+    "active": true
+  },
+  {
+    "serviceType": "commercial",
+    "relatedPropertyType": "commercial",
+    "title": "مستغلات تجاری و اداری",
+    "description": "ملک‌های تجاری، اداری و سرمایه‌ای مناسب کسب‌وکار، درآمدزایی و بهره‌برداری بلندمدت.",
+    "image": "/images/properties/villa-130-exterior.png",
+    "order": 4,
+    "active": true
+  },
+  {
+    "serviceType": "decoration",
+    "relatedPropertyType": "commercial",
+    "title": "خدمات دکوراسیون",
+    "description": "طراحی داخلی، چیدمان و اجرای فضاهای لوکس با رویکرد حرفه‌ای و کاملاً شخصی‌سازی‌شده.",
+    "image": "/images/properties/villa-130-interior.png",
+    "order": 5,
+    "active": true
+  },
+  {
+    "serviceType": "renovation",
+    "relatedPropertyType": "commercial",
+    "title": "خدمات بازسازی و نوسازی",
+    "description": "بازسازی کامل، نوسازی اصولی و افزایش ارزش ملک با برنامه‌ریزی و اجرای تیم متخصص.",
+    "image": "/images/properties/villa-130-twilight.png",
+    "order": 6,
+    "active": true
+  }
+]

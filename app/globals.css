@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --brand-dark: #1e3a2f;
+  --brand-green: #2d6a4f;
+  --brand-gold: #c9a847;
+}
+
+@theme inline {
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-green: var(--brand-green);
+  --color-brand-gold: var(--brand-gold);
+  --font-sans: var(--font-nian-source);
+  --font-nian: var(--font-nian-source);
+  --font-lausanne: var(--font-lausanne);
+  --font-neoSans: var(--font-neoSans);
+}
+
+body {
+  background: #26608c;
+  color: #1a1a1a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: var(--brand-gold);
+  color: white;
+}
