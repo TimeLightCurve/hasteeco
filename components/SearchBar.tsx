@@ -34,19 +34,19 @@ export default function SearchBar({ listPage = false }: { listPage?: boolean }) 
   return (
     <form
       onSubmit={handleSearch}
-      className={`${listPage ? "bg-white shadow-md" : "bg-black shadow-xl"} backdrop-blur-2xl  border border-white/20  px-4 py-4 md:px-6 md:py-5 md:pb-12`}
+      className={`${listPage ? "bg-white shadow-md border border-white/20" : "bg-black shadow-xl"} backdrop-blur-2xl    px-4 py-4 md:px-16 md:py-10 md:pb-12`}
     >
       <div className="flex flex-col h-full min-h-64 md:grid md:grid-cols-2 md:items-center gap-4 md:gap-4">
 
         {/* نوع ملک */}
-        <div className=" md:px-5 md:py-1 gap-4  flex h-full">
+        <div className={`${listPage ? "" : "border-b border-white/20"} md:px-5 md:py-1 gap-4  flex h-full`}>
           <p className={`text-xl font-semibold ${listPage ? "text-brand-dark" : "text-white"} mb-1.5`}>نوع</p>
           <select
             value={propertyType}
             onChange={(e) => setPropertyType(e.target.value)}
-            className="w-full text-sm  bg-transparent outline-none cursor-pointer appearance-none"
+            className={`${listPage ? "bg-transparent text-black" : "bg-black text-white/90"} w-full text-sm  px-2  outline-none cursor-pointer appearance-none`}
           >
-            <option value="">نوع ملک</option>
+            <option value="" className= { `${listPage ? "bg-transparent" : "bg-black"} px-2`}>نوع ملک</option>
             {propertyTypes.map((t) => (
               <option key={t.value} value={t.value}>{t.label}</option>
             ))}
@@ -56,14 +56,14 @@ export default function SearchBar({ listPage = false }: { listPage?: boolean }) 
         {/* <div className="hidden md:flex  w-px self-stretch bg-gray-200 my-1" /> */}
 
         {/* موقعیت */}
-        <div className="flex md:px-5 md:py-1 gap-4   h-full">
+        <div className={`${listPage ? "" : "border-b border-white/20"} md:px-5 md:py-1 gap-4  flex h-full`}>
           <p className={`text-xl font-semibold ${listPage ? "text-brand-dark" : "text-white"} mb-1.5`}>موقعیت</p>
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className={`w-full text-sm ${listPage ? "text-brand-dark" : "text-gray-300"} bg-transparent outline-none cursor-pointer appearance-none`}
+            className={`w-full text-sm  ${listPage ? "text-brand-dark" : "bg-black text-gray-300"} px-2 outline-none cursor-pointer appearance-none`}
           >
-            <option value="">تمام شهر ها</option>
+            <option value="" className= { `${listPage ? "bg-transparent" : "bg-black"} px-2`}>تمام شهر ها</option>
             {cities.map((c) => (
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
@@ -73,14 +73,14 @@ export default function SearchBar({ listPage = false }: { listPage?: boolean }) 
         {/* <div className="hidden md:block w-px self-stretch bg-gray-200 my-1" /> */}
 
         {/* جستجو */}
-        <div className="flex md:px-5 md:py-1 gap-4 h-full ">
-          <p className={`text-xl font-semibold ${listPage ? "text-brand-dark" : "text-white"} mb-1.5`}>جستجو</p>
+        <div className="flex md:flex-col md:px-0 md:py-0 gap-4 h-full w-full ">
+          <p className={`text-xl font-semibold ${listPage ? "text-brand-dark" : "text-white"}  mr-4`}>جستجو</p>
           <input
             type="text"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="کلید واژه را وارد کنید"
-            className={`w-full text-sm ${listPage ? "text-brand-dark placeholder:text-gray-800" : "text-gray-300 placeholder:text-gray-400"} bg-transparent outline-none `}
+            className={`w-full shrink-0 text-sm ${listPage ? "text-brand-dark placeholder:text-gray-800" : "text-gray-300 placeholder:text-gray-400 placeholder:bg"} bg-white/20 h-8 md:h-16 py-4 px-4 outline-none `}
           />
         </div>
 
@@ -111,7 +111,7 @@ export default function SearchBar({ listPage = false }: { listPage?: boolean }) 
 
           <button
             type="submit"
-            className="flex items-center gap-2 bg-brand-dark hover:bg-brand-green text-white text-sm font-semibold px-6 py-6 transition-colors whitespace-nowrap w-full md:w-auto justify-center"
+            className="flex items-center gap-2 bg-brand-dark hover:bg-brand-green text-white text-sm font-semibold px-6 py-6 transition-colors whitespace-nowrap w-full md:w-full md:h-16 place-self-end justify-center"
           >
             {/* Search icon */}
             <svg
