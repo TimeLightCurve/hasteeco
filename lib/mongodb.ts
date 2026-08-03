@@ -18,14 +18,29 @@ function getClientPromise(): Promise<MongoClient> {
 
   if (process.env.NODE_ENV === "development") {
     if (!global._mongoClientPromise) {
-      global._mongoClientPromise = new MongoClient(uri).connect();
+      global._mongoClientPromise = connectMongoClient(uri);
     }
     clientPromise = global._mongoClientPromise;
   } else {
-    clientPromise = new MongoClient(uri).connect();
+    clientPromise = connectMongoClient(uri);
   }
 
   return clientPromise;
+}
+
+function connectMongoClient(uri: string): Promise<MongoClient> {
+  const client = new MongoClient(uri, {
+    connectTimeoutMS: 10_000,
+    serverSelectionTimeoutMS: 10_000,
+  });
+  const connection = client.connect();
+
+  void connection.catch(async () => {
+    if (clientPromise === connection) clientPromise = undefined;
+    if (global._mongoClientPromise === connection) global._mongoClientPromise = undefined;
+    await client.close().catch(() => undefined);
+  });
+  return connection;
 }
 
 export async function getDb(dbName?: string): Promise<Db> {

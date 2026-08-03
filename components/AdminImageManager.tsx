@@ -21,16 +21,22 @@ export default function AdminImageManager({ name, initialImages, multiple = true
     if (!files?.length) return;
     setUploading(true);
     setError("");
-    const body = new FormData();
-    Array.from(files).forEach((file) => body.append("files", file));
     try {
-      const response = await fetch("/api/admin/uploads", { method: "POST", body });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "بارگذاری تصویر انجام نشد.");
-      const uploaded = result.data as string[];
-      setImages((current) => multiple ? [...current, ...uploaded].slice(0, 30) : uploaded.slice(-1));
+      for (const file of Array.from(files)) {
+        const body = new FormData();
+        body.append("files", file);
+        const response = await fetch("/api/admin/uploads", { method: "POST", body });
+        const uploaded = await readUploadedImages(response);
+        setImages((current) => multiple ? [...current, ...uploaded].slice(0, 30) : uploaded.slice(-1));
+      }
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : "بارگذاری تصویر انجام نشد.");
+      setError(
+        uploadError instanceof TypeError
+          ? "ارتباط با سرور برقرار نشد. اتصال اینترنت را بررسی کرده و دوباره تلاش کنید."
+          : uploadError instanceof Error
+            ? uploadError.message
+            : "بارگذاری تصویر انجام نشد.",
+      );
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -65,4 +71,34 @@ export default function AdminImageManager({ name, initialImages, multiple = true
       {error && <p role="alert" className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-xs font-bold text-red-700">{error}</p>}
     </div>
   );
+}
+
+async function readUploadedImages(response: Response): Promise<string[]> {
+  const responseBody = await response.text();
+  let result: { data?: unknown; error?: unknown } | null = null;
+
+  if (responseBody) {
+    try {
+      result = JSON.parse(responseBody) as { data?: unknown; error?: unknown };
+    } catch {
+      if (response.ok) throw new Error("پاسخ دریافتی از سرور قابل پردازش نیست.");
+    }
+  }
+
+  if (!response.ok) {
+    const serverMessage = typeof result?.error === "string" ? result.error : null;
+    throw new Error(serverMessage ?? uploadStatusMessage(response.status));
+  }
+  if (!Array.isArray(result?.data) || !result.data.every((item) => typeof item === "string")) {
+    throw new Error("سرور مسیر تصویر بارگذاری‌شده را برنگرداند.");
+  }
+  return result.data;
+}
+
+function uploadStatusMessage(status: number) {
+  if (status === 400) return "تصویر انتخاب‌شده معتبر نیست."
+  if (status === 401) return "نشست شما منقضی شده است. دوباره وارد پنل شوید."
+  if (status === 413) return "حجم تصویر بیش از حد مجاز سرور است. تصویری کوچک‌تر از ۴ مگابایت انتخاب کنید."
+  if (status >= 500) return "سرور نتوانست تصویر را ذخیره کند. کمی بعد دوباره تلاش کنید."
+  return `بارگذاری تصویر با خطای ${status} انجام نشد.`
 }
