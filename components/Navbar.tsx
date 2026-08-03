@@ -91,18 +91,19 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
   if (pathname === "/login" || pathname.startsWith("/admin")) return null
 
   return (
-    <header className="fixed inset-x-4 top-4 z-50 rounded-3xl bg-black/85 shadow-xl backdrop-blur-xl md:inset-x-auto md:right-8 md:top-8 md:rounded-full md:bg-white/10 md:shadow-sm">
+    <header className="fixed inset-x-4 top-4 z-50 max-w-[calc(100vw-2rem)] rounded-3xl bg-black/85 shadow-xl backdrop-blur-xl md:inset-x-auto md:right-8 md:top-8 md:max-w-[calc(100vw-4rem)] md:rounded-full md:bg-black/5 md:shadow-sm">
       <div className="h-full mx-auto px-4 md:px-4">
-        <div className="flex  h-full items-center justify-between py-3 gap-4">
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-10 h-10 bg-brand-dark rounded-lg flex items-center justify-center">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+        <div className="flex h-full min-w-0 items-center justify-between gap-2 py-3 md:gap-6 xl:gap-12">
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <div className="px-4 w-full rounded-lg flex items-center justify-center">
+              {/* <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-              </svg>
+              </svg> */}
+              <p className="text-white font-bold md:text-xl">HasteeCo</p>
             </div>
           </Link>
 
-          <nav className="hidden md:flex  items-center gap-6 text-sm font-medium h-full justify-center px-8">
+          <nav className="hidden min-w-0 items-center justify-center gap-4 px-4 text-sm font-medium md:flex lg:gap-8 lg:px-6 xl:gap-12">
             {navLinks.map((link) =>
               link.dropdown ? (
                 <div key={link.href} className="relative">
@@ -151,7 +152,7 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
                   aria-label={link.label}
                   title={link.label}
                 >
-                  <link.icon className="h-5 w-5" />
+                  <link.icon className="h-7 w-7" />
                 </Link>
               )
             )}
@@ -159,7 +160,7 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
 
           <div className="flex flex-col-reverse items-center gap-3 flex-shrink-0">
             <div className="hidden md:flex flex-col items-end leading-tight" />
-            <div className="hidden md:flex w-10 h-10 bg-brand-dark rounded-full items-center justify-center flex-shrink-0">
+            {/* <div className="hidden md:flex w-10 h-10 bg-brand-dark rounded-full items-center justify-center flex-shrink-0">
               <svg
                 width="18"
                 height="18"
@@ -172,7 +173,7 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
               >
                 <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.36 6.36l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
               </svg>
-            </div>
+            </div> */}
 
             <button
               className="grid h-10 w-10 place-items-center rounded-full border border-white/20 text-white transition hover:bg-white/10 md:hidden"

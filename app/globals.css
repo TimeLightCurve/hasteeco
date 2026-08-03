@@ -20,10 +20,15 @@
 body {
   background: #f4f2ed;
   color: #1a1a1a;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
 }
 
 html {
   scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 ::selection {

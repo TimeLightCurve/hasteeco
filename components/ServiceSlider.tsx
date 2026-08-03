@@ -44,7 +44,7 @@ export default function ServiceSlider({ services, compact = false }: Props) {
     <section {...swipeHandlers} id="services" className={compact ? "touch-pan-y scroll-mt-20 px-4 pb-12 pt-12 sm:px-8 md:pt-28" : "min-h-screen touch-pan-y scroll-mt-20 px-4 py-8 sm:px-8"}>
       <div className={`mx-auto w-full overflow-hidden rounded-0 bg-black ${compact ? "" : "min-h-[85vh]"}`}>
         <div className="grid lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="relative min-h-[420px] lg:min-h-[85vh] ">
+          <div className="relative min-h-105 lg:min-h-[85vh] ">
             <Image src={active.image} alt={active.title} fill priority className="object-cover" />
             <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-black/20" />
             <div className="absolute inset-0 flex items-end p-6 sm:p-10 lg:p-14">

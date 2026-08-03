@@ -20,10 +20,10 @@ export default function PropertyGallery({ images, title }: { images: string[]; t
           fill
           priority={index === 0}
           sizes="100vw"
-          className={`object-cover object-[50%_80%] transition-opacity duration-700 ${index === active ? "opacity-100" : "opacity-0"}`}
+          className={`object-cover object-center transition-opacity duration-700 ${index === active ? "opacity-100" : "opacity-0"}`}
         />
       ))}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-black/20" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/5 to-black/20" />
       <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between gap-5 sm:bottom-10 sm:left-10 sm:right-10">
         <div className="flex gap-2" dir="ltr">
           {images.map((image, index) => (

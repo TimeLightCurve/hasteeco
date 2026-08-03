@@ -102,8 +102,8 @@ export default async function RootLayout({
 }>) {
   const companySettings = await getCompanySettings();
   return (
-    <html lang="fa" dir="rtl" className={`${vazirmatn.variable} ${poppins.className} ${nian.variable} ${neoSans.variable} ${lausanne.variable}  h-full w-screen overflow-x-hidden`}>
-      <body className="min-h-full flex flex-col font-sans ">
+    <html lang="fa" dir="rtl" className={`${vazirmatn.variable} ${poppins.className} ${nian.variable} ${neoSans.variable} ${lausanne.variable} `}>
+      <body className="relative min-h-full flex flex-col font-sans  h-full w-full overflow-x-hidden">
         <Navbar settings={companySettings} />
         {children}
         <Footer settings={companySettings} />

@@ -39,12 +39,12 @@ export default function SearchBar({ listPage = false }: { listPage?: boolean }) 
       <div className="flex flex-col h-full min-h-64 md:grid md:grid-cols-2 md:items-center gap-4 md:gap-4">
 
         {/* نوع ملک */}
-        <div className={`${listPage ? "" : "border-b border-white/20"} md:px-5 md:py-1 gap-4  flex h-full`}>
-          <p className={`text-xl font-semibold ${listPage ? "text-brand-dark" : "text-white"} mb-1.5`}>نوع</p>
+        <div className={`${listPage ? "" : "border-b border-white/20"} flex h-full min-w-0 items-center gap-4 md:px-5 md:py-1`}>
+          <p className={`shrink-0 text-xl font-semibold ${listPage ? "text-brand-dark" : "text-white"} mb-1.5`}>نوع</p>
           <select
             value={propertyType}
             onChange={(e) => setPropertyType(e.target.value)}
-            className={`${listPage ? "bg-transparent text-black" : "bg-black text-white/90"} w-full text-sm  px-2  outline-none cursor-pointer appearance-none`}
+            className={`${listPage ? "bg-transparent text-black" : "bg-black text-white/90"} min-w-0 flex-1 cursor-pointer appearance-none px-2 text-sm outline-none`}
           >
             <option value="" className= { `${listPage ? "bg-transparent" : "bg-black"} px-2`}>نوع ملک</option>
             {propertyTypes.map((t) => (
@@ -56,12 +56,12 @@ export default function SearchBar({ listPage = false }: { listPage?: boolean }) 
         {/* <div className="hidden md:flex  w-px self-stretch bg-gray-200 my-1" /> */}
 
         {/* موقعیت */}
-        <div className={`${listPage ? "" : "border-b border-white/20"} md:px-5 md:py-1 gap-4  flex h-full`}>
-          <p className={`text-xl font-semibold ${listPage ? "text-brand-dark" : "text-white"} mb-1.5`}>موقعیت</p>
+        <div className={`${listPage ? "" : "border-b border-white/20"} flex h-full min-w-0 items-center gap-4 md:px-5 md:py-1`}>
+          <p className={`shrink-0 text-xl font-semibold ${listPage ? "text-brand-dark" : "text-white"} mb-1.5`}>موقعیت</p>
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className={`w-full text-sm  ${listPage ? "text-brand-dark" : "bg-black text-gray-300"} px-2 outline-none cursor-pointer appearance-none`}
+            className={`min-w-0 flex-1 cursor-pointer appearance-none px-2 text-sm outline-none ${listPage ? "text-brand-dark" : "bg-black text-gray-300"}`}
           >
             <option value="" className= { `${listPage ? "bg-transparent" : "bg-black"} px-2`}>تمام شهر ها</option>
             {cities.map((c) => (
@@ -73,14 +73,14 @@ export default function SearchBar({ listPage = false }: { listPage?: boolean }) 
         {/* <div className="hidden md:block w-px self-stretch bg-gray-200 my-1" /> */}
 
         {/* جستجو */}
-        <div className="flex md:flex-col md:px-0 md:py-0 gap-4 h-full w-full ">
-          <p className={`text-xl font-semibold ${listPage ? "text-brand-dark" : "text-white"}  mr-4`}>جستجو</p>
+        <div className="flex h-full min-w-0 w-full flex-col gap-2 md:gap-4 md:px-0 md:py-0">
+          <p className={`text-xl font-semibold ${listPage ? "text-brand-dark" : "text-white"} md:mr-4`}>جستجو</p>
           <input
             type="text"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="کلید واژه را وارد کنید"
-            className={`w-full shrink-0 text-sm ${listPage ? "text-brand-dark placeholder:text-gray-800" : "text-gray-300 placeholder:text-gray-400 placeholder:bg"} bg-white/20 h-8 md:h-16 py-4 px-4 outline-none `}
+            className={`h-12 min-w-0 w-full px-4 py-4 text-sm outline-none md:h-16 ${listPage ? "text-brand-dark placeholder:text-gray-800" : "bg-white/20 text-gray-300 placeholder:bg placeholder:text-gray-400"}`}
           />
         </div>
 
