@@ -18,7 +18,7 @@ export default function PropertyMap({ properties, selectedSlug, onSelect }: Prop
 
   return (
     <MapContainer center={center} zoom={6} scrollWheelZoom className="h-full w-full" attributionControl>
-      <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {/* <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" /> */}
       <FitProperties properties={properties} />
       {properties.map((property) => {
         const selected = property.slug === selectedSlug;
@@ -30,7 +30,7 @@ export default function PropertyMap({ properties, selectedSlug, onSelect }: Prop
             eventHandlers={{ click: () => onSelect(property.slug) }}
             zIndexOffset={selected ? 1000 : 0}
           >
-            <Tooltip direction="top" offset={[0, -18]} opacity={1}>{property.titleFa}</Tooltip>
+            <Tooltip direction="top" offset={[100, -20]} opacity={1}>{property.titleFa}</Tooltip>
           </Marker>
         );
       })}
