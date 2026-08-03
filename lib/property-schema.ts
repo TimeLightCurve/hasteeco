@@ -6,7 +6,7 @@ export const propertyInputSchema = z.object({
   title: z.string().trim().min(3).max(160),
   titleFa: z.string().trim().min(3).max(160),
   summary: z.string().trim().min(10).max(400),
-  description: z.string().trim().min(20).max(5000),
+  description: z.string().trim().min(1).max(5000),
   propertyType: z.enum(["villa", "apartment", "house", "land", "commercial"]),
   status: z.enum(["for-sale", "for-rent"]),
   buildingAreaSqM: z.number().nonnegative(),
@@ -48,6 +48,29 @@ export const propertyInputSchema = z.object({
 
 export type PropertyInput = z.infer<typeof propertyInputSchema>;
 
-export function propertyValidationMessage(error: z.ZodError) {
-  return error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join("؛ ");
+export type PropertyValidationIssue = {
+  field: string;
+  message: string;
+};
+
+export function propertyValidationIssues(error: z.ZodError): PropertyValidationIssue[] {
+  return error.issues.map((issue) => ({
+    field: issue.path.join("."),
+    message: propertyValidationIssueMessage(issue),
+  }));
+}
+
+function propertyValidationIssueMessage(issue: z.core.$ZodIssue): string {
+  if (issue.code === "too_small") {
+    if (Number(issue.minimum) === 1) return "این فیلد الزامی است."
+    return `مقدار باید حداقل ${issue.minimum} باشد.`
+  }
+  if (issue.code === "too_big") return `مقدار باید حداکثر ${issue.maximum} باشد.`
+  if (issue.code === "invalid_type") return "مقدار وارد نشده یا نوع آن نادرست است."
+  if (issue.code === "invalid_value") return "یکی از مقادیر مجاز را انتخاب کنید."
+  if (issue.code === "invalid_format" && issue.path.join(".") === "slug") {
+    return "Slug باید فقط شامل حروف کوچک انگلیسی، عدد و خط تیره باشد."
+  }
+  if (issue.code === "invalid_format") return "قالب مقدار واردشده معتبر نیست."
+  return issue.message
 }

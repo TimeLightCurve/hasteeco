@@ -91,10 +91,10 @@ export default function AdminServicesManager({ initialServices }: Props) {
             <form onSubmit={submitService} className="space-y-6 p-5 sm:p-8">
               {message && <Notice message={message} />}
               <section className="space-y-4 rounded-2xl border border-stone-200 bg-white p-5 sm:p-6">
-                <Field name="serviceType" label="Service type" defaultValue={editing?.serviceType ?? "villa"} />
-                <Field name="relatedPropertyType" label="Related property type" defaultValue={editing?.relatedPropertyType ?? "villa"} />
-                <Field name="title" label="Title" required defaultValue={editing?.title} />
-                <TextArea name="description" label="Description" required defaultValue={editing?.description} rows={5} />
+                <Field name="serviceType" label="Service type" dir="ltr" defaultValue={editing?.serviceType ?? "villa"} />
+                <Field name="relatedPropertyType" label="Related property type" dir="ltr" defaultValue={editing?.relatedPropertyType ?? "villa"} />
+                <Field name="title" label="Title" dir="ltr" required defaultValue={editing?.title} />
+                <TextArea name="description" label="Description" dir="ltr" required defaultValue={editing?.description} rows={5} />
                 <AdminImageManager name="image" label="تصویر سرویس" initialImages={[editing?.image ?? "/images/properties/villa-130-exterior.png"]} multiple={false} />
                 <Field name="order" label="Order" type="number" required defaultValue={editing?.order ?? 1} />
                 <label className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3.5 text-base font-bold">
@@ -128,23 +128,27 @@ function serviceFromForm(form: FormData): ServiceInput {
 }
 
 function Field(props: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
-  const { label, ...inputProps } = props
+  const { label, style, ...inputProps } = props
   return (
     <label className="block">
       <span className="mb-1.5 block text-[10px] font-bold text-stone-500">{label}</span>
-      <input {...inputProps} className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-sm outline-none focus:border-brand-green focus:bg-white focus:ring-3 focus:ring-brand-green/10" />
+      <input {...inputProps} style={latinFormControlStyle(style)} className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-left text-sm outline-none focus:border-brand-green focus:bg-white focus:ring-3 focus:ring-brand-green/10" />
     </label>
   )
 }
 
 function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) {
-  const { label, ...inputProps } = props
+  const { label, style, ...inputProps } = props
   return (
     <label className="block">
       <span className="mb-1.5 block text-[10px] font-bold text-stone-500">{label}</span>
-      <textarea {...inputProps} className="w-full resize-y rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-sm leading-6 outline-none focus:border-brand-green focus:bg-white focus:ring-3 focus:ring-brand-green/10" />
+      <textarea {...inputProps} style={latinFormControlStyle(style)} className="w-full resize-y rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-left text-sm leading-6 outline-none focus:border-brand-green focus:bg-white focus:ring-3 focus:ring-brand-green/10" />
     </label>
   )
+}
+
+function latinFormControlStyle(style?: React.CSSProperties): React.CSSProperties {
+  return { fontFamily: "var(--font-neoSans), Arial, sans-serif", wordSpacing: "0.12em", ...style }
 }
 
 

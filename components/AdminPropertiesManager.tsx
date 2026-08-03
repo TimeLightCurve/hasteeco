@@ -9,6 +9,9 @@ import { FormEvent, useMemo, useState } from "react"
 import AdminImageManager from "@/components/AdminImageManager"
 
 type Props = { initialProperties: ManagedProperty[]; openNewInitially?: boolean; canDelete: boolean; projectMode?: boolean; nextListingIdOverride?: number }
+type AdminMessage = { kind: "success" | "error"; text: string; details?: string[] }
+type ApiIssue = { field: string; message: string }
+type ApiResult<T> = T & { error?: string; issues?: ApiIssue[] }
 
 export default function AdminPropertiesManager({ initialProperties, openNewInitially = false, canDelete, projectMode = false, nextListingIdOverride }: Props) {
   const router = useRouter()
@@ -17,7 +20,7 @@ export default function AdminPropertiesManager({ initialProperties, openNewIniti
   const [editing, setEditing] = useState<ManagedProperty | null>(null)
   const [formOpen, setFormOpen] = useState(openNewInitially)
   const [pending, setPending] = useState(false)
-  const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null)
+  const [message, setMessage] = useState<AdminMessage | null>(null)
 
   const filtered = useMemo(() => {
     const value = query.trim().toLowerCase()
@@ -41,43 +44,46 @@ export default function AdminPropertiesManager({ initialProperties, openNewIniti
     event.preventDefault()
     setPending(true)
     setMessage(null)
-    const input = propertyFromForm(new FormData(event.currentTarget))
-    const endpoint = editing ? `/api/admin/properties/${editing.listingId}` : "/api/admin/properties"
-    const response = await fetch(endpoint, {
-      method: editing ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    })
-    const result = await response.json()
+    try {
+      const input = propertyFromForm(new FormData(event.currentTarget))
+      const endpoint = editing ? `/api/admin/properties/${editing.listingId}` : "/api/admin/properties"
+      const response = await fetch(endpoint, {
+        method: editing ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      })
+      const result = await readApiResult<{ data: ManagedProperty }>(response)
+      const saved = result.data
 
-    if (!response.ok) {
-      setMessage({ kind: "error", text: result.error ?? "ذخیره ملک انجام نشد." })
+      setProperties((current) => {
+        const updated = editing ? current.map((item) => item.listingId === editing.listingId ? saved : item) : [saved, ...current]
+        return projectMode ? updated.filter((item) => item.our_project) : updated
+      })
+      setMessage({ kind: "success", text: editing ? "تغییرات ملک ذخیره شد." : "ملک جدید ایجاد شد." })
+      setEditing(saved)
+      router.refresh()
+    } catch (error) {
+      setMessage(toAdminErrorMessage(error, "ذخیره ملک انجام نشد."))
+    } finally {
       setPending(false)
-      return
     }
-
-    const saved = result.data as ManagedProperty
-    setProperties((current) => {
-      const updated = editing ? current.map((item) => item.listingId === editing.listingId ? saved : item) : [saved, ...current]
-      return projectMode ? updated.filter((item) => item.our_project) : updated
-    })
-    setMessage({ kind: "success", text: editing ? "تغییرات ملک ذخیره شد." : "ملک جدید ایجاد شد." })
-    setPending(false)
-    setEditing(saved)
-    router.refresh()
   }
 
   async function removeProperty(property: ManagedProperty) {
     if (!canDelete || !window.confirm(`ملک «${property.title}» حذف شود؟ این عملیات قابل بازگشت نیست.`)) return
-    const response = await fetch(`/api/admin/properties/${property.listingId}`, { method: "DELETE" })
-    const result = await response.json()
-    if (!response.ok) {
-      setMessage({ kind: "error", text: result.error ?? "حذف ملک انجام نشد." })
-      return
+    setPending(true)
+    setMessage(null)
+    try {
+      const response = await fetch(`/api/admin/properties/${property.listingId}`, { method: "DELETE" })
+      await readApiResult<{ success: true }>(response)
+      setProperties((current) => current.filter((item) => item.listingId !== property.listingId))
+      setMessage({ kind: "success", text: "ملک با موفقیت حذف شد." })
+      router.refresh()
+    } catch (error) {
+      setMessage(toAdminErrorMessage(error, "حذف ملک انجام نشد."))
+    } finally {
+      setPending(false)
     }
-    setProperties((current) => current.filter((item) => item.listingId !== property.listingId))
-    setMessage({ kind: "success", text: "ملک با موفقیت حذف شد." })
-    router.refresh()
   }
 
   const nextListingId = nextListingIdOverride ?? Math.max(0, ...properties.map((property) => property.listingId)) + 1
@@ -130,10 +136,9 @@ export default function AdminPropertiesManager({ initialProperties, openNewIniti
   )
 }
 
-function PropertyForm({ property, nextListingId, onSubmit, pending, message, defaultOurProject }: { property: ManagedProperty | null; nextListingId: number; onSubmit: (event: FormEvent<HTMLFormElement>) => void; pending: boolean; message: { kind: "success" | "error"; text: string } | null; defaultOurProject: boolean }) {
+function PropertyForm({ property, nextListingId, onSubmit, pending, message, defaultOurProject }: { property: ManagedProperty | null; nextListingId: number; onSubmit: (event: FormEvent<HTMLFormElement>) => void; pending: boolean; message: AdminMessage | null; defaultOurProject: boolean }) {
   return (
     <form onSubmit={onSubmit} className="space-y-6 p-5 sm:p-8">
-      {message && <Notice message={message} />}
       <FormSection title="اطلاعات پایه" description="عنوان، شناسه و وضعیت انتشار">
         <div className="grid gap-4 sm:grid-cols-2"><Field name="listingId" label="شناسه" type="number" required defaultValue={property?.listingId ?? nextListingId} /><Field name="slug" label="Slug انگلیسی" dir="ltr" required defaultValue={property?.slug} placeholder="modern-villa-lavasan" /></div>
         <Field name="title" label="عنوان انگلیسی" dir="ltr" required defaultValue={property?.title} placeholder="Modern Villa in Lavasan" />
@@ -162,6 +167,7 @@ function PropertyForm({ property, nextListingId, onSubmit, pending, message, def
         <AdminImageManager name="images" label="تصاویر ملک" initialImages={property?.images ?? ["/images/properties/villa-130-exterior.png"]} />
       </FormSection>
 
+      {message && <Notice message={message} />}
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-stone-200 bg-[#f8f7f4]/95 py-5 backdrop-blur"><button type="submit" disabled={pending} className="rounded-xl bg-brand-dark px-8 py-3.5 text-sm font-bold text-white transition hover:bg-brand-green disabled:opacity-50">{pending ? "در حال ذخیره…" : property ? "ذخیره تغییرات" : "ایجاد ملک"}</button></div>
     </form>
   )
@@ -189,7 +195,100 @@ function propertyFromForm(form: FormData): PropertyInput {
 }
 
 function FormSection({ title, description, children }: { title: string; description: string; children: React.ReactNode }) { return <section className="space-y-4 rounded-2xl border border-stone-200 bg-white p-5 sm:p-6"><div className="border-b border-stone-100 pb-4"><h3 className="font-black">{title}</h3><p className="mt-1 text-[10px] text-stone-400">{description}</p></div>{children}</section> }
-function Field(props: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) { const { label, ...inputProps } = props; return <label className="block"><span className="mb-1.5 block text-[10px] font-bold text-stone-500">{label}</span><input {...inputProps} className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-sm outline-none focus:border-brand-green focus:bg-white focus:ring-3 focus:ring-brand-green/10" /></label> }
-function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) { const { label, ...inputProps } = props; return <label className="block"><span className="mb-1.5 block text-[10px] font-bold text-stone-500">{label}</span><textarea {...inputProps} className="w-full resize-y rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-sm leading-6 outline-none focus:border-brand-green focus:bg-white focus:ring-3 focus:ring-brand-green/10" /></label> }
+function Field(props: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) { const { label, style, ...inputProps } = props; return <label className="block"><span className="mb-1.5 block text-[10px] font-bold text-stone-500">{label}</span><input {...inputProps} style={formControlStyle(inputProps.dir, style)} className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-sm outline-none focus:border-brand-green focus:bg-white focus:ring-3 focus:ring-brand-green/10" /></label> }
+function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) { const { label, style, ...inputProps } = props; return <label className="block"><span className="mb-1.5 block text-[10px] font-bold text-stone-500">{label}</span><textarea {...inputProps} style={formControlStyle(inputProps.dir, style)} className="w-full resize-y rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-sm leading-6 outline-none focus:border-brand-green focus:bg-white focus:ring-3 focus:ring-brand-green/10" /></label> }
 function SelectField({ name, label, defaultValue, options }: { name: string; label: string; defaultValue: string; options: string[] }) { return <label className="block"><span className="mb-1.5 block text-[10px] font-bold text-stone-500">{label}</span><select name={name} defaultValue={defaultValue} className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-sm outline-none focus:border-brand-green">{options.map((option) => <option key={option} value={option}>{option}</option>)}</select></label> }
-function Notice({ message }: { message: { kind: "success" | "error"; text: string } }) { return <p role="status" className={`rounded-xl px-4 py-3 text-base font-bold ${message.kind === "success" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{message.text}</p> }
+
+function formControlStyle(dir: React.HTMLAttributes<HTMLElement>["dir"], style?: React.CSSProperties): React.CSSProperties | undefined {
+  if (dir !== "ltr") return style
+  return { fontFamily: "var(--font-neoSans), Arial, sans-serif", wordSpacing: "0.12em", ...style }
+}
+function Notice({ message }: { message: AdminMessage }) {
+  return (
+    <div role={message.kind === "error" ? "alert" : "status"} className={`rounded-xl px-4 py-3 text-sm ${message.kind === "success" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+      <p className="font-bold">{message.text}</p>
+      {!!message.details?.length && (
+        <ul className="mt-2 list-disc space-y-1 pr-5 text-xs font-medium" dir="rtl">
+          {message.details.map((detail, index) => <li key={`${index}-${detail}`}>{detail}</li>)}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+class AdminApiError extends Error {
+  constructor(message: string, readonly issues: ApiIssue[] = []) {
+    super(message)
+    this.name = "AdminApiError"
+  }
+}
+
+async function readApiResult<T>(response: Response): Promise<ApiResult<T>> {
+  let result: ApiResult<T> | null = null
+  try {
+    result = await response.json() as ApiResult<T>
+  } catch {
+    if (response.ok) throw new AdminApiError("پاسخ دریافتی از سرور قابل پردازش نیست.")
+  }
+
+  if (!response.ok) {
+    throw new AdminApiError(result?.error ?? statusErrorMessage(response.status), result?.issues)
+  }
+  if (!result) throw new AdminApiError("پاسخی از سرور دریافت نشد.")
+  return result
+}
+
+function toAdminErrorMessage(error: unknown, fallback: string): AdminMessage {
+  if (error instanceof AdminApiError) {
+    return {
+      kind: "error",
+      text: error.message,
+      details: error.issues.map((issue) => `${propertyFieldLabels[issue.field] ?? issue.field}: ${issue.message}`),
+    }
+  }
+  if (error instanceof TypeError) {
+    return { kind: "error", text: "ارتباط با سرور برقرار نشد. اتصال اینترنت را بررسی کرده و دوباره تلاش کنید." }
+  }
+  console.error("Unexpected admin property operation error", error)
+  return { kind: "error", text: fallback }
+}
+
+function statusErrorMessage(status: number) {
+  if (status === 400) return "اطلاعات ارسال‌شده معتبر نیست."
+  if (status === 401) return "نشست شما منقضی شده است. دوباره وارد پنل شوید."
+  if (status === 403) return "اجازه انجام این عملیات را ندارید."
+  if (status === 404) return "ملک موردنظر پیدا نشد. صفحه را تازه‌سازی کنید."
+  if (status === 409) return "شناسه یا slug واردشده تکراری است."
+  if (status >= 500) return "سرور نتوانست عملیات را انجام دهد. کمی بعد دوباره تلاش کنید."
+  return `عملیات با خطای ${status} انجام نشد.`
+}
+
+const propertyFieldLabels: Record<string, string> = {
+  listingId: "شناسه",
+  slug: "Slug",
+  title: "عنوان انگلیسی",
+  titleFa: "عنوان فارسی",
+  summary: "خلاصه",
+  description: "توضیحات",
+  propertyType: "نوع ملک",
+  status: "وضعیت",
+  buildingAreaSqM: "زیربنا",
+  landAreaSqM: "مساحت ملک",
+  buildingDimensions: "ابعاد",
+  rooms: "تعداد اتاق",
+  bedrooms: "تعداد خواب",
+  bathrooms: "تعداد حمام",
+  parkingSpaces: "تعداد پارکینگ",
+  "price.amount": "مبلغ",
+  "price.billingPeriod": "دوره پرداخت",
+  "yearBuilt.solarHijri": "سال شمسی",
+  "yearBuilt.gregorianApprox": "سال میلادی",
+  "location.address": "آدرس",
+  "location.city": "شهر",
+  "location.province": "استان",
+  "location.country": "کشور",
+  "location.coordinates.latitude": "Latitude",
+  "location.coordinates.longitude": "Longitude",
+  features: "ویژگی‌ها",
+  images: "تصاویر",
+}
