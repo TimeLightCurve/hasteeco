@@ -1,0 +1,43 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  --brand-dark: #1e3a2f;
+  --brand-green: #2d6a4f;
+  --brand-gold: #c9a847;
+}
+
+@theme inline {
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-green: var(--brand-green);
+  --color-brand-gold: var(--brand-gold);
+  --font-sans: var(--font-nian-source);
+  --font-nian: var(--font-nian-source);
+  --font-lausanne: var(--font-lausanne);
+  --font-neoSans: var(--font-neoSans);
+}
+
+body {
+  background: #f4f2ed;
+  color: #1a1a1a;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--brand-gold);
+  color: white;
+}
+
+.property-map-pin { background: transparent; border: 0; }
+.property-map-pin > span { display: grid; width: 38px; height: 38px; place-items: center; border: 3px solid white; border-radius: 999px 999px 999px 3px; background: var(--brand-dark); box-shadow: 0 8px 24px rgb(0 0 0 / 30%); transform: rotate(-45deg); transition: transform 180ms ease, background 180ms ease; }
+.property-map-pin > span > i { display: block; width: 9px; height: 9px; border-radius: 999px; background: white; }
+.property-map-pin > span.is-selected { background: var(--brand-gold); transform: rotate(-45deg) scale(1.2); }
+.leaflet-tooltip { border: 0 !important; border-radius: 10px !important; box-shadow: 0 8px 28px rgb(0 0 0 / 18%) !important; font-family: var(--font-nian-source), sans-serif !important; font-weight: 700; }
