@@ -14,6 +14,7 @@ type NavLink = {
 }
 
 const navLinks: NavLink[] = [
+  { label: "تور مجازی", href: "/virtual-tour", icon: TourIcon },
   { label: "خانه", href: "/", active: true, icon: HomeIcon },
   // { label: "Ø®Ø¯Ù…Ø§Øª Ù…Ø§", href: "/services" },
   { label: "پروژه‌ها", href: "/projects", icon: BriefcaseIcon },
@@ -31,6 +32,15 @@ const navLinks: NavLink[] = [
   // },
   { label: "ارتباط با ما", href: "/contact", icon: MailIcon },
 ]
+
+function TourIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
+    </svg>
+  )
+}
 
 function HomeIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -88,7 +98,7 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [blogOpen, setBlogOpen] = useState(false)
 
-  if (pathname === "/login" || pathname.startsWith("/admin")) return null
+  if (pathname === "/login" || pathname.startsWith("/admin") || pathname.startsWith("/virtual-tour")) return null
 
   return (
     <header className="fixed inset-x-4 top-4 z-50 max-w-[calc(100vw-2rem)] rounded-3xl bg-black/85 shadow-xl backdrop-blur-xl md:inset-x-auto md:right-8 md:top-8 md:max-w-[calc(100vw-4rem)] md:rounded-full md:bg-black/5 md:shadow-sm">

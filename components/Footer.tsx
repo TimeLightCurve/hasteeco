@@ -7,6 +7,7 @@ import type { SVGProps } from "react"
 import { ArrowLeft } from "lucide-react"
 
 const primaryLinks = [
+  { label: "تور مجازی", href: "/virtual-tour" },
   { label: "خانه", href: "/" },
   { label: "پروژه‌های ما", href: "/projects" },
   { label: "آگهی‌های ملکی", href: "/listings" },
@@ -25,7 +26,7 @@ const propertyLinks = [
 
 export default function Footer({ settings }: { settings: CompanySettings }) {
   const pathname = usePathname()
-  if (pathname === "/login" || pathname.startsWith("/admin")) return null
+  if (pathname === "/login" || pathname.startsWith("/admin") || pathname.startsWith("/virtual-tour")) return null
   const socialLinks = [
     { label: "اینستاگرام", href: settings.instagram, icon: InstagramIcon },
     { label: "تلگرام", href: settings.telegram, icon: TelegramIcon },

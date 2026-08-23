@@ -2,7 +2,7 @@ import { logoutAction } from "@/app/admin/actions"
 import { auth } from "@/auth"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { ExternalLink } from "lucide-react"
+import { ExternalLink, Eye } from "lucide-react"
 import AdminMobileNav from "@/components/AdminMobileNav"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -31,6 +31,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </Link>
           <Link href="/admin/projects" className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-white/65 transition hover:bg-white/10 hover:text-white">
             <span>◇</span> پروژه‌های ما
+          </Link>
+          <Link href="/admin/virtual-tour" className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-white/65 transition hover:bg-white/10 hover:text-white">
+            <Eye className="h-4 w-4" aria-hidden /> تور مجازی
           </Link>
           <Link href="/admin/settings" className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-white/65 transition hover:bg-white/10 hover:text-white">
             <span>⚙</span> اطلاعات شرکت

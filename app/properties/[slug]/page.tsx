@@ -1,6 +1,7 @@
 import PropertyGallery from "@/components/PropertyGallery"
 import { getCompanySettings } from "@/lib/company-settings"
 import { getPropertyBySlug } from "@/lib/properties"
+import { getVirtualToursForProperty } from "@/lib/virtual-tours"
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -22,7 +23,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PropertyPage({ params }: PageProps) {
   const { slug } = await params
-  const [property, company] = await Promise.all([getPropertyBySlug(slug), getCompanySettings()])
+  const [property, company, virtualTours] = await Promise.all([
+    getPropertyBySlug(slug),
+    getCompanySettings(),
+    getVirtualToursForProperty(slug),
+  ])
   if (!property) notFound()
 
   const number = new Intl.NumberFormat("fa-IR")
@@ -129,6 +134,56 @@ export default async function PropertyPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      {virtualTours.length > 0 && (
+        <section id="virtual-tour" className="bg-[#101512] px-4 py-14 text-white sm:px-8 lg:px-12 lg:py-20" dir="rtl">
+          <div className="mx-auto max-w-[1600px]">
+            <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-base font-bold tracking-[0.18em] text-brand-gold">بازدید آنلاین ملک</p>
+                <h2 className="mt-3 text-4xl font-black sm:text-6xl">تور مجازی ۳۶۰ درجه</h2>
+                <p className="mt-4 max-w-2xl text-sm leading-8 text-white/55 sm:text-base">
+                  در فضای ملک حرکت کنید، اتاق‌ها را ببینید و جزئیات پروژه را از هر زاویه بررسی کنید.
+                </p>
+              </div>
+              {virtualTours.length === 1 && (
+                <Link
+                  href={`/virtual-tour/${virtualTours[0].slug}`}
+                  target="_blank"
+                  className="w-fit rounded-full border border-white/20 px-6 py-3 text-sm font-bold transition hover:border-brand-gold hover:bg-brand-gold"
+                >
+                  نمایش تمام‌صفحه
+                </Link>
+              )}
+            </div>
+
+            <div className="space-y-10">
+              {virtualTours.map((tour) => (
+                <article key={tour.slug}>
+                  {virtualTours.length > 1 && (
+                    <div className="mb-4 flex items-center justify-between gap-4">
+                      <h3 className="text-xl font-bold">{tour.name}</h3>
+                      <Link href={`/virtual-tour/${tour.slug}`} target="_blank" className="text-sm font-bold text-brand-gold">
+                        نمایش تمام‌صفحه
+                      </Link>
+                    </div>
+                  )}
+                  <div className="relative h-[72vh] min-h-[520px] overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-2xl">
+                    <iframe
+                      src={`/virtual-tour/${tour.slug}?embed=1`}
+                      title={`تور مجازی ${tour.name}`}
+                      className="absolute inset-0 h-full w-full border-0"
+                      loading="lazy"
+                      allow="fullscreen; gyroscope; accelerometer"
+                      allowFullScreen
+                    />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section id="contact" className="bg-brand-gold px-6 py-16 text-white sm:px-10 lg:py-24">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 md:flex-row md:items-end">

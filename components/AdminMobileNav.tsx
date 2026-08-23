@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Building2, ExternalLink, FolderKanban, Gauge, Menu, Settings, Shapes, X } from "lucide-react";
+import { Building2, ExternalLink, Eye, FolderKanban, Gauge, Menu, Settings, Shapes, X } from "lucide-react";
 
 const links = [
+  { href: "/admin/virtual-tour", label: "تور مجازی", icon: Eye },
   { href: "/admin", label: "داشبورد", icon: Gauge },
   { href: "/admin/properties", label: "مدیریت املاک", icon: Building2 },
   { href: "/admin/projects", label: "پروژه‌های ما", icon: FolderKanban },
