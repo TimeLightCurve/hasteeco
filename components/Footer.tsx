@@ -39,7 +39,7 @@ export default function Footer({ settings }: { settings: CompanySettings }) {
       <div className="mx-auto max-w-[1600px] px-6 pb-8 pt-20 sm:px-10 lg:px-16 lg:pt-28">
         <div className="grid gap-14 border-b border-white/12 pb-16 lg:grid-cols-[1.25fr_0.7fr_0.7fr_1fr]">
           <div>
-            <Link href="/" className="inline-flex items-center gap-4" aria-label="هاستکو، صفحه اصلی">
+            <Link href="/" className="inline-flex items-center gap-4" aria-label="هستیکو، صفحه اصلی">
               <span className="grid h-12 w-12 place-items-center rounded-xl bg-white text-brand-dark">
                 <LogoIcon className="h-7 w-7" />
               </span>
@@ -48,7 +48,7 @@ export default function Footer({ settings }: { settings: CompanySettings }) {
             <p className="mt-8 max-w-md text-sm leading-8 text-white/55">همراه شما برای انتخاب، خرید، فروش و سرمایه‌گذاری آگاهانه در املاک متمایز؛ از نخستین گفت‌وگو تا نهایی‌شدن تصمیم.</p>
             <div className="mt-8 flex gap-3">
               {socialLinks.map(({ label, href, icon: Icon }) => (
-                <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={label} title={label} className="grid h-11 w-11 place-items-center rounded-full border border-white/20 text-white/70 transition hover:border-brand-gold hover:bg-brand-gold hover:text-white">
+                <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={label} title={label} className="grid h-11 w-11 place-items-center rounded-none border border-white/20 text-white/70 transition hover:border-brand-gold hover:bg-brand-gold hover:text-white">
                   <Icon className="h-5 w-5" />
                 </a>
               ))}
@@ -65,17 +65,17 @@ export default function Footer({ settings }: { settings: CompanySettings }) {
               <p><a dir="ltr" href={`tel:${settings.phone}`} className="inline-block transition hover:text-white">{settings.phoneDisplay}</a></p>
               <p><a dir="ltr" href={`mailto:${settings.email}`} className="inline-block transition hover:text-white">{settings.email}</a></p>
             </address>
-            <Link href="/contact" className="mt-8 inline-flex items-center gap-3 rounded-full bg-white px-6 py-3.5 text-base font-bold text-brand-dark transition hover:bg-brand-gold hover:text-white">درخواست مشاوره <ArrowLeft className="h-4 w-4" aria-hidden /></Link>
+            <Link href="/contact" className="mt-8 inline-flex items-center gap-3 rounded-none bg-white px-6 py-3.5 text-base font-bold text-brand-dark transition hover:bg-brand-gold hover:text-white">درخواست مشاوره <ArrowLeft className="h-4 w-4" aria-hidden /></Link>
           </div>
         </div>
 
         <div className="flex flex-col gap-5 border-b border-white/12 py-10 sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-xl text-sm leading-7 text-white/45">برای آگاهی از تازه‌ترین املاک و پروژه‌های منتخب، شبکه‌های اجتماعی هاستکو را دنبال کنید.</p>
+          <p className="max-w-xl text-sm leading-7 text-white/45">برای آگاهی از تازه‌ترین املاک و پروژه‌های منتخب، شبکه‌های اجتماعی هستیکو را دنبال کنید.</p>
           <Link href="/listings" className="group flex items-center gap-5 text-sm font-bold"><span>مشاهده تمام املاک</span><span className="grid h-10 w-10 place-items-center rounded-full border border-white/25 transition group-hover:border-white group-hover:bg-white group-hover:text-black"><ArrowLeft className="h-4 w-4" aria-hidden /></span></Link>
         </div>
 
-        <div className="flex flex-col-reverse gap-4 pt-8 text-[11px] text-white/35 sm:flex-row sm:items-center sm:justify-between">
-          <p>© ۲۰۲۶ هاستکو. تمامی حقوق محفوظ است.</p>
+        <div className="flex flex-col-reverse gap-4 pt-8 text-base text-white/35 sm:flex-row sm:items-center sm:justify-between">
+          <p>© ۲۰۲۶ هستیکو. تمامی حقوق محفوظ است.</p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <Link href="/about" className="transition hover:text-white">درباره مجموعه</Link>
             <Link href="/contact" className="transition hover:text-white">اطلاعات تماس</Link>

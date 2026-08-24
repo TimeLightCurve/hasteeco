@@ -41,11 +41,11 @@ export default async function PropertyPage({ params }: PageProps) {
             <p className="mb-3 text-base font-bold tracking-[0.2em] text-white/70" dir="ltr">
               HASTE ECO — PROPERTY {property.listingId}
             </p>
-            <h1 className="max-w-9xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl lg:text-[10rem]">
+            <h1 className="max-w-6xl text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-7xl">
               {property.titleFa}
             </h1>
           </div>
-          <Link href="#contact" className="pointer-events-auto hidden rounded-full border border-white/40 bg-white/10 px-6 py-3 text-sm font-bold backdrop-blur transition hover:bg-white hover:text-brand-dark sm:block">
+          <Link href="#contact" className="pointer-events-auto hidden rounded-full border border-white/40 bg-white/10 px-6 py-3 text-sm font-bold backdrop-blur transition hover:bg-white hover:text-brand-dark sm:block text-nowrap">
             رزرو بازدید
           </Link>
         </div>
@@ -87,7 +87,7 @@ export default async function PropertyPage({ params }: PageProps) {
               <h3 className=" text-2xl font-bold text-black/80 leading-[0.95] tracking-tight sm:text-3xl lg:text-4xl">
                 {property.titleFa}
               </h3>
-              <h1 className="text-6xl font-black leading-[0.95] tracking-tight sm:text-3xl lg:text-9xl">
+              <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
                 {number.format(property.buildingAreaSqM)} متر مربع
               </h1>
 
@@ -141,7 +141,7 @@ export default async function PropertyPage({ params }: PageProps) {
             <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
               <div>
                 <p className="text-base font-bold tracking-[0.18em] text-brand-gold">بازدید آنلاین ملک</p>
-                <h2 className="mt-3 text-4xl font-black sm:text-6xl">تور مجازی ۳۶۰ درجه</h2>
+                <h2 className="mt-3 text-4xl font-black sm:text-5xl">تور مجازی ۳۶۰ درجه</h2>
                 <p className="mt-4 max-w-2xl text-sm leading-8 text-white/55 sm:text-base">
                   در فضای ملک حرکت کنید، اتاق‌ها را ببینید و جزئیات پروژه را از هر زاویه بررسی کنید.
                 </p>
@@ -170,12 +170,15 @@ export default async function PropertyPage({ params }: PageProps) {
                   )}
                   <div className="relative h-[72vh] min-h-[520px] overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-2xl">
                     <iframe
-                      src={`/virtual-tour/${tour.slug}?embed=1`}
+                      src={tour.displayMode === "iframe" && tour.iframeUrl
+                        ? tour.iframeUrl
+                        : `/virtual-tour/${tour.slug}?embed=1`}
                       title={`تور مجازی ${tour.name}`}
                       className="absolute inset-0 h-full w-full border-0"
                       loading="lazy"
                       allow="fullscreen; gyroscope; accelerometer"
                       allowFullScreen
+                      referrerPolicy="strict-origin-when-cross-origin"
                     />
                   </div>
                 </article>
@@ -189,7 +192,7 @@ export default async function PropertyPage({ params }: PageProps) {
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 md:flex-row md:items-end">
           <div>
             <p className="text-base font-bold tracking-[0.18em] text-white/70">یک قدم تا بازدید</p>
-            <h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight sm:text-6xl">این خانه را از نزدیک تجربه کنید.</h2>
+            <h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight sm:text-5xl">این خانه را از نزدیک تجربه کنید.</h2>
           </div>
           <a href={`tel:${company.phone}`} className="rounded-full bg-brand-dark px-8 py-4 text-sm font-bold shadow-xl transition hover:-translate-y-1">
             تماس با مشاور {company.phoneDisplay}
@@ -201,7 +204,7 @@ export default async function PropertyPage({ params }: PageProps) {
 }
 
 function Spec({ value, unit, label }: { value: string; unit: string; label: string }) {
-  return <div className="flex min-h-32 flex-col justify-between border-b border-l border-stone-200 p-6 sm:p-6"><span className="text-base font-bold text-stone-400">{label}</span><div><strong className="text-4xl font-black sm:text-5xl">{value}</strong><span className="mr-1 text-base text-stone-400">{unit}</span></div></div>
+  return <div className="flex min-h-32 flex-col justify-between border-b border-l border-stone-200 p-6 sm:p-6"><span className="text-base font-bold text-stone-400">{label}</span><div><strong className="text-3xl font-black sm:text-4xl">{value}</strong><span className="mr-1 text-base text-stone-400">{unit}</span></div></div>
 }
 
 function Detail({ label, value }: { label: string; value: string }) {

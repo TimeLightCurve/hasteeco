@@ -1,8 +1,8 @@
 import "server-only";
 
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
-import { tourScenes, type TourScene } from "@/lib/tour-data";
-import type { VirtualTourProject, VirtualTourProjectInput } from "@/lib/virtual-tour-schema";
+import { legacyDefaultTourSceneNames, tourScenes, type TourScene } from "@/lib/tour-data";
+import { DEFAULT_VIRTUAL_TOUR_IFRAME_URL, type VirtualTourProject, type VirtualTourProjectInput } from "@/lib/virtual-tour-schema";
 
 export const DEFAULT_VIRTUAL_TOUR_SLUG = "shahrak-iranian-vt";
 export const DEFAULT_VIRTUAL_TOUR_PROPERTY_SLUG = "shahrak-iranian-136";
@@ -11,6 +11,8 @@ const defaultProject = (): VirtualTourProject => ({
   slug: DEFAULT_VIRTUAL_TOUR_SLUG,
   name: "Shahrak Iranian Virtual Tour",
   propertySlug: DEFAULT_VIRTUAL_TOUR_PROPERTY_SLUG,
+  displayMode: "native",
+  iframeUrl: DEFAULT_VIRTUAL_TOUR_IFRAME_URL,
   scenes: structuredClone(tourScenes),
 });
 
@@ -19,24 +21,55 @@ const fallbackProjects = () => [defaultProject()];
 async function ensureDefaultProjectSeeded() {
   const db = await getDb();
   const migrations = db.collection<{ key: string; completedAt: string }>("app_migrations");
-  const migrationKey = "seed-shahrak-iranian-virtual-tour-v1";
-  if (await migrations.findOne({ key: migrationKey })) return;
-
-  const now = new Date().toISOString();
-  const project = { ...defaultProject(), createdAt: now, updatedAt: now };
   const collection = db.collection<VirtualTourProject>("virtual_tours");
   await collection.createIndex({ slug: 1 }, { unique: true });
   await collection.createIndex({ propertySlug: 1 });
-  await collection.updateOne(
-    { slug: project.slug },
-    { $setOnInsert: project },
-    { upsert: true },
-  );
-  await migrations.updateOne(
-    { key: migrationKey },
-    { $setOnInsert: { key: migrationKey, completedAt: now } },
-    { upsert: true },
-  );
+
+  const seedMigrationKey = "seed-shahrak-iranian-virtual-tour-v1";
+  if (!await migrations.findOne({ key: seedMigrationKey })) {
+    const now = new Date().toISOString();
+    const project = { ...defaultProject(), createdAt: now, updatedAt: now };
+    await collection.updateOne(
+      { slug: project.slug },
+      { $setOnInsert: project },
+      { upsert: true },
+    );
+    await migrations.updateOne(
+      { key: seedMigrationKey },
+      { $setOnInsert: { key: seedMigrationKey, completedAt: now } },
+      { upsert: true },
+    );
+  }
+
+  const roomNamesMigrationKey = "localize-shahrak-iranian-room-names-v2";
+  if (!await migrations.findOne({ key: roomNamesMigrationKey })) {
+    const project = await collection.findOne({ slug: DEFAULT_VIRTUAL_TOUR_SLUG });
+    if (project) {
+      const localizedNames = new Map(tourScenes.map((scene) => [scene.id, scene.name]));
+      let changed = false;
+      const scenes = project.scenes.map((scene) => {
+        const legacyName = legacyDefaultTourSceneNames[scene.id];
+        const localizedName = localizedNames.get(scene.id);
+        if (legacyName && localizedName && scene.name === legacyName) {
+          changed = true;
+          return { ...scene, name: localizedName };
+        }
+        return scene;
+      });
+      if (changed) {
+        await collection.updateOne(
+          { slug: DEFAULT_VIRTUAL_TOUR_SLUG },
+          { $set: { scenes, updatedAt: new Date().toISOString() } },
+        );
+      }
+    }
+    const completedAt = new Date().toISOString();
+    await migrations.updateOne(
+      { key: roomNamesMigrationKey },
+      { $setOnInsert: { key: roomNamesMigrationKey, completedAt } },
+      { upsert: true },
+    );
+  }
 }
 
 export async function getVirtualTourBySlug(slug: string): Promise<VirtualTourProject | null> {

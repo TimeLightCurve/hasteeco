@@ -3,6 +3,7 @@
 import type { CompanySettings } from "@/lib/company-settings"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { motion, useReducedMotion } from "motion/react"
 import { JSX, useState, type SVGProps } from "react"
 
 type NavLink = {
@@ -32,6 +33,30 @@ const navLinks: NavLink[] = [
   // },
   { label: "ارتباط با ما", href: "/contact", icon: MailIcon },
 ]
+
+const MotionLink = motion.create(Link)
+
+function RollingNavText({ label }: { label: string }) {
+  const reduceMotion = useReducedMotion()
+
+  return (
+    <span className="block h-[1.65em] overflow-hidden whitespace-nowrap leading-[1.65]">
+      <motion.span
+        className="block"
+        variants={{
+          rest: { y: "0%" },
+          hover: { y: "-50%" },
+        }}
+        transition={reduceMotion
+          ? { duration: 0 }
+          : { duration: 0.42, ease: [0.76, 0, 0.24, 1] }}
+      >
+        <span className="block h-[1.65em]">{label}</span>
+        <span className="block h-[1.65em]" aria-hidden="true">{label}</span>
+      </motion.span>
+    </span>
+  )
+}
 
 function TourIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -101,7 +126,7 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
   if (pathname === "/login" || pathname.startsWith("/admin") || pathname.startsWith("/virtual-tour")) return null
 
   return (
-    <header className="fixed inset-x-4 top-4 z-50 max-w-[calc(100vw-2rem)] rounded-3xl bg-black/85 shadow-xl backdrop-blur-xl md:inset-x-auto md:right-8 md:top-8 md:max-w-[calc(100vw-4rem)] md:rounded-full md:bg-black/5 md:shadow-sm">
+    <header className="fixed inset-x-4 top-4 z-50 max-w-[calc(100vw-2rem)] rounded-3xl bg-black/85 shadow-xl backdrop-blur-xl md:inset-x-auto md:right-8 md:top-8 md:max-w-[calc(100vw-4rem)] md:rounded-full md:bg-black/5 md:shadow-sm font-nian">
       <div className="h-full mx-auto px-4 md:px-4">
         <div className="flex h-full min-w-0 items-center justify-between gap-2 py-3 md:gap-6 xl:gap-12">
           <Link href="/" className="flex items-center gap-2 shrink-0">
@@ -113,18 +138,23 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
             </div>
           </Link>
 
-          <nav className="hidden min-w-0 items-center justify-center gap-4 px-4 text-sm font-medium md:flex lg:gap-8 lg:px-6 xl:gap-12">
+          <nav className="hidden min-w-0 items-center justify-center gap-3 px-3 text-sm font-medium md:flex lg:gap-5 lg:px-5 xl:gap-8">
             {navLinks.map((link) =>
               link.dropdown ? (
                 <div key={link.href} className="relative">
-                  <button
+                  <motion.button
                     onClick={() => setBlogOpen((v) => !v)}
                     onBlur={() => setTimeout(() => setBlogOpen(false), 150)}
-                    className="flex items-center justify-center text-white hover:text-brand-dark transition-colors py-1"
+                    className="flex items-center justify-center gap-2 py-1 text-white transition-colors hover:text-brand-dark"
                     aria-label={link.label}
                     title={link.label}
+                    initial="rest"
+                    animate="rest"
+                    whileHover="hover"
+                    whileFocus="hover"
                   >
-                    <link.icon className="h-8 w-8" />
+                    <link.icon className="h-5 w-5 shrink-0" />
+                    <RollingNavText label={link.label} />
                     <svg
                       width="12"
                       height="12"
@@ -136,7 +166,7 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
                     >
                       <path d="M6 9l6 6 6-6" />
                     </svg>
-                  </button>
+                  </motion.button>
                   {blogOpen && (
                     <div className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 py-2 min-w-[160px] z-50">
                       {link.dropdown.map((item) => (
@@ -152,18 +182,23 @@ export default function Navbar({ settings }: { settings: CompanySettings }) {
                   )}
                 </div>
               ) : (
-                <Link
+                <MotionLink
                   key={link.href}
                   href={link.href}
-                  className={`py-1 transition-colors ${pathname === link.href
-                      ? " text-white bg-black rounded-full font-bold aspect-square flex justify-center items-center px-3 "
-                      : "text-white hover:text-brand-dark "
+                  className={`flex items-center justify-center gap-2 py-1 transition-colors ${pathname === link.href
+                      ? "rounded-full bg-black px-4 font-bold text-white"
+                      : "px-2 text-white hover:text-brand-dark"
                     }`}
                   aria-label={link.label}
                   title={link.label}
+                  initial="rest"
+                  animate="rest"
+                  whileHover="hover"
+                  whileFocus="hover"
                 >
-                  <link.icon className="h-7 w-7" />
-                </Link>
+                  <link.icon className="h-5 w-5 shrink-0" />
+                  <RollingNavText label={link.label} />
+                </MotionLink>
               )
             )}
           </nav>

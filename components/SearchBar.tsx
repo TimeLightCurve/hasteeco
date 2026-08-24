@@ -34,7 +34,7 @@ export default function SearchBar({ listPage = false }: { listPage?: boolean }) 
   return (
     <form
       onSubmit={handleSearch}
-      className={`${listPage ? "bg-white shadow-md border border-white/20" : "bg-black shadow-xl"} backdrop-blur-2xl    px-4 py-4 md:px-16 md:py-10 md:pb-12`}
+      className={`${listPage ? "bg-white shadow-md border border-white/20 " : "bg-black shadow-xl "} backdrop-blur-2xl  px-4 py-4 md:px-16 md:py-10 md:pb-12`}
     >
       <div className="flex flex-col h-full min-h-64 md:grid md:grid-cols-2 md:items-center gap-4 md:gap-4">
 

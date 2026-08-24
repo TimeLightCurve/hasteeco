@@ -70,7 +70,7 @@ export default function AdminServicesManager({ initialServices }: Props) {
               <Image src={service.image} alt={service.title} fill className="object-cover" />
             </div>
             <div className="p-5">
-              <p className="text-[11px] font-bold tracking-[0.2em] text-brand-gold">{service.serviceType}</p>
+              <p className="text-base font-bold tracking-[0.2em] text-brand-gold">{service.serviceType}</p>
               <h2 className="mt-2 text-lg font-black text-brand-dark">{service.title}</h2>
               <p className="mt-2 line-clamp-3 text-sm text-stone-500">{service.description}</p>
             </div>
@@ -84,7 +84,7 @@ export default function AdminServicesManager({ initialServices }: Props) {
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-200 bg-white/95 px-5 py-5 backdrop-blur sm:px-8">
               <div>
                 <h2 className="text-xl font-black">{editing ? "ویرایش سرویس" : "سرویس جدید"}</h2>
-                <p className="mt-1 text-[10px] text-stone-400">فقط داده‌های نمایشی سرویس‌ها در این بخش نگه‌داری می‌شود.</p>
+                <p className="mt-1 text-base text-stone-400">فقط داده‌های نمایشی سرویس‌ها در این بخش نگه‌داری می‌شود.</p>
               </div>
               <button onClick={() => setFormOpen(false)} className="grid h-10 w-10 place-items-center rounded-full bg-stone-100 text-lg">×</button>
             </div>
@@ -131,7 +131,7 @@ function Field(props: React.InputHTMLAttributes<HTMLInputElement> & { label: str
   const { label, style, ...inputProps } = props
   return (
     <label className="block">
-      <span className="mb-1.5 block text-[10px] font-bold text-stone-500">{label}</span>
+      <span className="mb-1.5 block text-base font-bold text-stone-500">{label}</span>
       <input {...inputProps} style={latinFormControlStyle(style)} className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-left text-sm outline-none focus:border-brand-green focus:bg-white focus:ring-3 focus:ring-brand-green/10" />
     </label>
   )
@@ -141,7 +141,7 @@ function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { l
   const { label, style, ...inputProps } = props
   return (
     <label className="block">
-      <span className="mb-1.5 block text-[10px] font-bold text-stone-500">{label}</span>
+      <span className="mb-1.5 block text-base font-bold text-stone-500">{label}</span>
       <textarea {...inputProps} style={latinFormControlStyle(style)} className="w-full resize-y rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-left text-sm leading-6 outline-none focus:border-brand-green focus:bg-white focus:ring-3 focus:ring-brand-green/10" />
     </label>
   )

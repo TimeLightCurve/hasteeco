@@ -42,7 +42,7 @@ export default function OurProjectsSlider({ projects }: { projects: Property[] }
 
         <div className="pb-72 sm:pb-52 lg:pb-16">
           <p className="mb-4 text-base font-bold uppercase tracking-[0.28em] text-white/65">{project.propertyType} · {project.location.city}</p>
-          <h2 className="max-w-5xl text-5xl font-black uppercase leading-[0.88] tracking-[-0.055em] sm:text-7xl lg:text-[7.5rem]">{project.title}</h2>
+          <h2 className="max-w-5xl text-4xl font-black uppercase leading-[0.95] tracking-[-0.035em] sm:text-5xl lg:text-6xl">{project.title}</h2>
         </div>
       </div>
 

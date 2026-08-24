@@ -50,7 +50,7 @@
 .sectionHeading span,
 .propertiesHeading span {
   color: #987c48;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -81,33 +81,33 @@
 
 .projectSwitcher select {
   min-width: 230px;
-  height: 38px;
+  height: 44px;
   padding: 0 34px 0 11px;
   border: 1px solid #ccd1c9;
   border-radius: 4px;
   color: #2f3e34;
   background: white;
-  font-size: 11px;
+  font-size: 14px;
 }
 
 .projectDeleteButton {
-  min-height: 38px;
+  min-height: 44px;
   padding: 0 10px;
   border: 0;
   color: #9b5d51;
   background: transparent;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .projectError {
   flex: 0 0 auto;
-  padding: 9px 22px;
+  padding: 12px 22px;
   border-bottom: 1px solid #d9b9b2;
   color: #8d493e;
   background: #f8e9e5;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -129,13 +129,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
-  padding: 0 15px;
+  min-height: 44px;
+  padding: 0 17px;
   border: 1px solid #ccd1c9;
   border-radius: 4px;
   color: #37463b;
   background: #fff;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-decoration: none;
@@ -161,7 +161,7 @@
 .adminBody {
   display: grid;
   flex: 1;
-  grid-template-columns: 250px minmax(540px, 1fr) 310px;
+  grid-template-columns: 270px minmax(540px, 1fr) 350px;
   min-height: 0;
 }
 
@@ -233,7 +233,7 @@
 
 .roomItem > span {
   color: #9a9f99;
-  font: 400 12px/1 Georgia, serif;
+  font: 400 14px/1 Georgia, serif;
 }
 
 .roomItem > div {
@@ -250,13 +250,13 @@
 
 .roomItem b {
   color: #3a483e;
-  font: 400 13px/1.25 Georgia, serif;
+  font: 500 15px/1.35 Georgia, serif;
 }
 
 .roomItem small {
   margin-top: 4px;
   color: #929991;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -296,7 +296,7 @@
   max-width: 420px;
   margin: 0 0 2px;
   color: #707a72;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
   text-align: right;
 }
@@ -378,13 +378,27 @@
   border-radius: 50%;
   color: white;
   background: #263d2e;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .editorMarkerSelected {
   border-color: #e9c47a;
   background: rgba(222, 185, 112, 0.35);
   box-shadow: 0 0 0 4px rgba(229, 193, 124, 0.2), 0 7px 12px rgba(0, 0, 0, 0.42);
+}
+
+.editorMarkerLight {
+  border-color: #ffe49a;
+  background: rgba(255, 221, 126, 0.3);
+  box-shadow: 0 0 0 4px rgba(255, 223, 139, 0.13), 0 0 24px rgba(255, 217, 112, 0.42);
+}
+
+.editorMarkerLight > span {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #fff4c9;
+  box-shadow: 0 0 15px rgba(255, 233, 159, 0.95);
 }
 
 .editorHint {
@@ -397,10 +411,58 @@
   color: rgba(255, 255, 255, 0.82);
   background: rgba(19, 28, 21, 0.68);
   backdrop-filter: blur(10px);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   transform: translateX(-50%);
   pointer-events: none;
+}
+
+.arrivalCapture {
+  position: absolute;
+  z-index: 32;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  max-width: min(620px, calc(100% - 28px));
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  background: rgba(18, 29, 21, 0.78);
+  backdrop-filter: blur(12px);
+}
+
+.arrivalCapture > span {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+}
+
+.arrivalCapture > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.arrivalCapture button {
+  min-height: 38px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  background: #304838;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.arrivalCapture button:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
+
+.arrivalCapture button.clearArrivalView {
+  color: #f0c6bd;
+  background: rgba(116, 55, 44, 0.64);
 }
 
 .linkSection {
@@ -448,7 +510,7 @@
   border-radius: 50%;
   color: white;
   background: #304838;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .linkCard > label {
@@ -460,6 +522,13 @@
   grid-column: 1 / -1;
 }
 
+.linkActionHint {
+  grid-column: 1 / -1;
+  color: #7e877f;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .placementPicker {
   display: flex;
   grid-column: 1 / -1;
@@ -469,7 +538,7 @@
 
 .placementPicker > span {
   color: #6d786f;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -484,13 +553,13 @@
 }
 
 .placementPicker button {
-  min-height: 34px;
+  min-height: 40px;
   padding: 0 6px;
   border: 0;
   border-right: 1px solid #d9ddd6;
   color: #69736b;
   background: #f7f8f5;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -506,7 +575,7 @@
 
 .placementPicker small {
   color: #929991;
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.4;
 }
 
@@ -517,7 +586,7 @@
   border: 0;
   color: #a06458;
   background: transparent;
-  font-size: 9px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -525,7 +594,7 @@
   padding: 26px;
   border: 1px dashed #cbd0c8;
   color: #7f8880;
-  font-size: 11px;
+  font-size: 13px;
   text-align: center;
 }
 
@@ -543,7 +612,7 @@
   flex-direction: column;
   gap: 6px;
   color: #6d786f;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -555,19 +624,19 @@
 .linkCard select {
   width: 100%;
   min-width: 0;
-  height: 39px;
+  height: 44px;
   padding: 0 10px;
   border: 1px solid #ccd1ca;
   border-radius: 3px;
   color: #2f3e34;
   background: white;
-  font-size: 11px;
+  font-size: 14px;
   text-transform: none;
 }
 
 .propertiesPanel label > small {
   color: #969d97;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 400;
   line-height: 1.45;
   letter-spacing: 0;
@@ -589,12 +658,12 @@
 
 .persistenceNote b {
   color: #665638;
-  font: 400 12px/1.2 Georgia, serif;
+  font: 500 14px/1.3 Georgia, serif;
 }
 
 .persistenceNote p {
   margin: 6px 0 0;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.55;
 }
 
@@ -608,6 +677,175 @@
 .dangerButton:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.displayModePicker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.displayModePicker > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid #cbd1c8;
+}
+
+.displayModePicker button {
+  min-height: 48px;
+  padding: 7px 9px;
+  border: 0;
+  border-right: 1px solid #d8ddd5;
+  color: #68736a;
+  background: #f7f8f5;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.displayModePicker button:last-child {
+  border-right: 0;
+}
+
+.displayModePicker button.displayModeActive {
+  color: white;
+  background: #304838;
+}
+
+.displayModePicker > small {
+  color: #818a82;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.arrivalViewFields {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid #d4d8d1;
+  background: #f7f8f5;
+}
+
+.arrivalViewFields > small {
+  color: #7f8880;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.arrivalViewRow {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 9px;
+  border-top: 1px solid #dfe2dc;
+}
+
+.arrivalViewRow b {
+  color: #34483a;
+  font-size: 12px;
+}
+
+.arrivalViewRow em {
+  color: #969d97;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.imageManager {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.fieldLabel {
+  color: #6d786f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.imagePreview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
+  border: 1px solid #c8cec5;
+  border-radius: 5px;
+  background: #dfe3dc;
+}
+
+.imagePreview img {
+  object-fit: cover;
+}
+
+.imageActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.uploadButton,
+.imageDeleteButton {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid #bec7bc;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.uploadButton {
+  color: white;
+  background: #304838;
+}
+
+.imageDeleteButton {
+  color: #985b4f;
+  background: #fff;
+}
+
+.uploadButton svg,
+.imageDeleteButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.uploadButton:disabled,
+.imageDeleteButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.imageManager > small {
+  color: #818a82;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.spinningIcon {
+  animation: tour-admin-spin 800ms linear infinite;
+}
+
+@keyframes tour-admin-spin {
+  to { transform: rotate(360deg); }
+}
+
+.adminShell :is(button, input, select, label, small, p, b, span) {
+  font-size: 16px !important;
+  line-height: 1.5;
+}
+
+.adminShell .editorMarker b {
+  width: 28px;
+  height: 28px;
 }
 
 .hiddenInput {

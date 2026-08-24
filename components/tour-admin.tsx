@@ -1,12 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useCallback, useMemo, useRef, useState } from "react";
+import { ImagePlus, LoaderCircle, Trash2 } from "lucide-react";
 import { PanoramaLinkEditor } from "@/components/panorama-link-editor";
 import { sanitizeTourScenes } from "@/lib/tour-config";
-import { sceneZones, tourScenes, type TourLink, type TourScene } from "@/lib/tour-data";
-import type { VirtualTourProject } from "@/lib/virtual-tour-schema";
+import { sceneZones, tourScenes, type TourLink, type TourScene, type TourView } from "@/lib/tour-data";
+import {
+  DEFAULT_VIRTUAL_TOUR_IFRAME_URL,
+  type VirtualTourDisplayMode,
+  type VirtualTourProject,
+} from "@/lib/virtual-tour-schema";
 import styles from "./tour-admin.module.css";
 
 type PropertyOption = {
@@ -29,6 +35,22 @@ const panoramaOptions = tourScenes.map((scene) => ({
   label: `${String(scene.index).padStart(2, "0")} · ${scene.sourceLabel}`,
 }));
 
+const isManagedTourImage = (path: string) => /^\/api\/uploads\/[a-f\d]{24}$/i.test(path);
+
+const getManagedImagePaths = (scenes: TourScene[]) => scenes
+  .flatMap((scene) => [scene.panorama, scene.thumbnail])
+  .filter(isManagedTourImage);
+
+async function deleteManagedImages(paths: string[]) {
+  const managedPaths = [...new Set(paths.filter(isManagedTourImage))];
+  if (!managedPaths.length) return;
+  await fetch("/api/admin/virtual-tours/images", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ paths: managedPaths }),
+  }).catch(() => undefined);
+}
+
 function createDraftProject(slug = "new-virtual-tour"): EditableProject {
   const firstRoom = structuredClone(tourScenes[0]);
   firstRoom.links = [];
@@ -36,6 +58,8 @@ function createDraftProject(slug = "new-virtual-tour"): EditableProject {
     slug,
     name: "New virtual tour",
     propertySlug: null,
+    displayMode: "native",
+    iframeUrl: DEFAULT_VIRTUAL_TOUR_IFRAME_URL,
     scenes: [firstRoom],
     isNew: true,
   };
@@ -44,6 +68,7 @@ function createDraftProject(slug = "new-virtual-tour"): EditableProject {
 export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
   const router = useRouter();
   const importRef = useRef<HTMLInputElement>(null);
+  const panoramaUploadRef = useRef<HTMLInputElement>(null);
   const startingProjects = useMemo(
     () => initialProjects.length ? initialProjects : [createDraftProject()],
     [initialProjects],
@@ -53,10 +78,14 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
   const [projectName, setProjectName] = useState(startingProjects[0].name);
   const [projectSlug, setProjectSlug] = useState(startingProjects[0].slug);
   const [propertySlug, setPropertySlug] = useState(startingProjects[0].propertySlug ?? "");
+  const [displayMode, setDisplayMode] = useState<VirtualTourDisplayMode>(startingProjects[0].displayMode ?? "native");
+  const [iframeUrl, setIframeUrl] = useState(startingProjects[0].iframeUrl ?? DEFAULT_VIRTUAL_TOUR_IFRAME_URL);
   const [rooms, setRooms] = useState<TourScene[]>(startingProjects[0].scenes);
   const [selectedRoomId, setSelectedRoomId] = useState(startingProjects[0].scenes[0].id);
   const [selectedLink, setSelectedLink] = useState<number | null>(null);
   const [saveState, setSaveState] = useState<"saved" | "dirty" | "saving" | "error">("saved");
+  const [imageState, setImageState] = useState<"idle" | "uploading">("idle");
+  const [pendingImageDeletes, setPendingImageDeletes] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   const selectedProject = projects.find((project) => project.slug === selectedProjectKey) ?? projects[0];
@@ -71,15 +100,19 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
   }, []);
 
   const loadProjectIntoEditor = (project: EditableProject) => {
+    void deleteManagedImages([...getManagedImagePaths(rooms), ...pendingImageDeletes]);
     const nextRooms = structuredClone(project.scenes);
     setSelectedProjectKey(project.slug);
     setProjectName(project.name);
     setProjectSlug(project.slug);
     setPropertySlug(project.propertySlug ?? "");
+    setDisplayMode(project.displayMode ?? "native");
+    setIframeUrl(project.iframeUrl ?? DEFAULT_VIRTUAL_TOUR_IFRAME_URL);
     setRooms(nextRooms);
     setSelectedRoomId(nextRooms[0].id);
     setSelectedLink(null);
     setSaveState(project.isNew ? "dirty" : "saved");
+    setPendingImageDeletes([]);
     setErrorMessage("");
   };
 
@@ -117,6 +150,9 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
       }
     }
 
+    void deleteManagedImages([...getManagedImagePaths(rooms), ...pendingImageDeletes]);
+    setPendingImageDeletes([]);
+
     const remaining = projects.filter((project) => project.slug !== selectedProject.slug);
     if (remaining.length) {
       setProjects(remaining);
@@ -136,6 +172,13 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
   const updateSelectedRoom = useCallback((update: (room: TourScene) => TourScene) => {
     if (selectedRoom) updateRoom(selectedRoom.id, update);
   }, [selectedRoom, updateRoom]);
+
+  const replaceSelectedRoomImage = (panorama: string, thumbnail: string) => {
+    const removed = [selectedRoom.panorama, selectedRoom.thumbnail]
+      .filter((path) => path !== panorama && path !== thumbnail && isManagedTourImage(path));
+    if (removed.length) setPendingImageDeletes((current) => [...new Set([...current, ...removed])]);
+    updateSelectedRoom((room) => ({ ...room, panorama, thumbnail }));
+  };
 
   const addRoom = () => {
     const suffix = Date.now().toString(36);
@@ -160,6 +203,8 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
   const removeRoom = () => {
     if (!selectedRoom || rooms.length === 1) return;
     if (!window.confirm(`Remove “${selectedRoom.name}” and every link pointing to it?`)) return;
+    const removedImages = getManagedImagePaths([selectedRoom]);
+    if (removedImages.length) setPendingImageDeletes((current) => [...new Set([...current, ...removedImages])]);
     const remaining = rooms
       .filter((room) => room.id !== selectedRoom.id)
       .map((room, index) => ({
@@ -191,6 +236,8 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
       slug: projectSlug.trim(),
       name: projectName.trim(),
       propertySlug: propertySlug || null,
+      displayMode,
+      iframeUrl: iframeUrl.trim(),
       scenes: cleanRooms,
     };
     const response = await fetch(
@@ -222,13 +269,22 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
     setProjectName(saved.name);
     setProjectSlug(saved.slug);
     setPropertySlug(saved.propertySlug ?? "");
+    setDisplayMode(saved.displayMode ?? "native");
+    setIframeUrl(saved.iframeUrl ?? DEFAULT_VIRTUAL_TOUR_IFRAME_URL);
     setRooms(saved.scenes);
     setSelectedRoomId((current) => saved.scenes.some((room) => room.id === current) ? current : saved.scenes[0].id);
     setSaveState("saved");
+    if (pendingImageDeletes.length) {
+      const pathsToDelete = pendingImageDeletes;
+      setPendingImageDeletes([]);
+      void deleteManagedImages(pathsToDelete);
+    }
   };
 
   const resetRooms = () => {
     if (!window.confirm("Replace this project’s rooms and hotspots with the original villa tour?")) return;
+    const removedImages = getManagedImagePaths(rooms);
+    if (removedImages.length) setPendingImageDeletes((current) => [...new Set([...current, ...removedImages])]);
     const defaults = structuredClone(tourScenes);
     setRooms(defaults);
     setSelectedRoomId(defaults[0].id);
@@ -262,11 +318,64 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
     }
   };
 
+  const uploadPanorama = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || imageState === "uploading") return;
+
+    const targetRoom = selectedRoom;
+    setImageState("uploading");
+    setErrorMessage("");
+
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const response = await fetch("/api/admin/virtual-tours/images", { method: "POST", body: form });
+      if (response.status === 401) {
+        router.push("/login?callbackUrl=/admin/virtual-tour");
+        return;
+      }
+
+      const body = await response.json().catch(() => null) as {
+        data?: { panorama: string; thumbnail: string };
+        error?: string;
+      } | null;
+      if (!response.ok || !body?.data) throw new Error(body?.error ?? "The panorama could not be uploaded.");
+
+      const removed = [targetRoom.panorama, targetRoom.thumbnail]
+        .filter((path) => path !== body.data?.panorama && path !== body.data?.thumbnail && isManagedTourImage(path));
+      if (removed.length) setPendingImageDeletes((current) => [...new Set([...current, ...removed])]);
+      updateRoom(targetRoom.id, (room) => ({
+        ...room,
+        panorama: body.data!.panorama,
+        thumbnail: body.data!.thumbnail,
+        sourceLabel: file.name,
+      }));
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "The panorama could not be uploaded.");
+    } finally {
+      setImageState("idle");
+    }
+  };
+
+  const removeUploadedPanorama = () => {
+    if (!isManagedTourImage(selectedRoom.panorama)) return;
+    if (!window.confirm("Remove this uploaded panorama from the room? The bundled default will be restored.")) return;
+    const fallback = panoramaOptions[0];
+    replaceSelectedRoomImage(fallback.panorama, fallback.thumbnail);
+  };
+
   const addLink = () => {
     if (!selectedRoom) return;
     const target = rooms.find((room) => room.id !== selectedRoom.id);
     if (!target) return;
-    const link: TourLink = { nodeId: target.id, yaw: selectedRoom.initialYaw, pitch: -18, placement: "ground" };
+    const link: TourLink = {
+      nodeId: target.id,
+      yaw: selectedRoom.initialYaw,
+      pitch: -18,
+      placement: "ground",
+      action: "move",
+    };
     updateSelectedRoom((room) => ({ ...room, links: [...room.links, link] }));
     setSelectedLink(selectedRoom.links.length);
   };
@@ -276,6 +385,18 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
       ...room,
       links: room.links.map((link, linkIndex) => linkIndex === index ? { ...link, ...update } : link),
     }));
+  };
+
+  const updateArrivalView = (direction: "forward" | "backward", view: TourView | undefined) => {
+    updateSelectedRoom((room) => {
+      const arrivalViews = { ...room.arrivalViews };
+      if (view) arrivalViews[direction] = view;
+      else delete arrivalViews[direction];
+      return {
+        ...room,
+        arrivalViews: arrivalViews.forward || arrivalViews.backward ? arrivalViews : undefined,
+      };
+    });
   };
 
   const removeLink = (index: number) => {
@@ -341,7 +462,7 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
                 }}
               >
                 <span>{String(room.index).padStart(2, "0")}</span>
-                <div><b>{room.name}</b><small>{room.zone} · {room.links.length} pins</small></div>
+                <div><b dir="auto">{room.name}</b><small>{room.zone} · {room.links.length} pins</small></div>
               </button>
             ))}
           </div>
@@ -350,7 +471,7 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
 
         <section className={styles.workspace}>
           <div className={styles.workspaceHeading}>
-            <div><span>Visual editor</span><h2>{selectedRoom.name}</h2></div>
+            <div><span>Visual editor</span><h2 dir="auto">{selectedRoom.name}</h2></div>
             <p>Look around normally, then drag a numbered pin to its exact door or entrance.</p>
           </div>
           <PanoramaLinkEditor
@@ -359,6 +480,7 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
             selectedLink={selectedLink}
             onSelectLink={setSelectedLink}
             onLinksChange={(links) => updateSelectedRoom((room) => ({ ...room, links }))}
+            onArrivalViewChange={updateArrivalView}
           />
 
           <div className={styles.linkSection}>
@@ -379,12 +501,45 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
                     <span className={styles.linkNumber}>{index + 1}</span>
                     <label>
                       Destination
-                      <select value={link.nodeId} onChange={(event) => updateLink(index, { nodeId: event.target.value })}>
+                      <select dir="auto" value={link.nodeId} onChange={(event) => updateLink(index, { nodeId: event.target.value })}>
                         {rooms.filter((room) => room.id !== selectedRoom.id).map((room) => (
                           <option key={room.id} value={room.id}>{room.name}</option>
                         ))}
                       </select>
                     </label>
+                    <div className={styles.coordinateFields}>
+                      <label>
+                        Button action
+                        <select
+                          value={link.action ?? "move"}
+                          onChange={(event) => updateLink(index, { action: event.target.value as NonNullable<TourLink["action"]> })}
+                        >
+                          <option value="move">Move to location</option>
+                          <option value="light">Turn lights on / off</option>
+                        </select>
+                      </label>
+                      <label>
+                        Target view
+                        <select
+                          value={link.direction ?? "auto"}
+                          disabled={(link.action ?? "move") === "light"}
+                          onChange={(event) => updateLink(index, {
+                            direction: event.target.value === "auto"
+                              ? undefined
+                              : event.target.value as NonNullable<TourLink["direction"]>,
+                          })}
+                        >
+                          <option value="auto">Auto by room order</option>
+                          <option value="forward">Forward view</option>
+                          <option value="backward">Backward view</option>
+                        </select>
+                      </label>
+                    </div>
+                    <small className={styles.linkActionHint}>
+                      {(link.action ?? "move") === "light"
+                        ? "Light buttons crossfade with a soft flash and keep the current camera angle."
+                        : "Auto uses the forward view for a higher room number and backward for a lower one."}
+                    </small>
                     <div className={styles.placementPicker}>
                       <span>Button surface</span>
                       <div role="group" aria-label="Button surface">
@@ -440,12 +595,53 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
             </select>
             <small>The tour section appears automatically on the assigned property page.</small>
           </label>
+          <div className={styles.displayModePicker}>
+            <span className={styles.fieldLabel}>Published tour type</span>
+            <div role="group" aria-label="Published virtual tour type">
+              <button
+                type="button"
+                className={displayMode === "native" ? styles.displayModeActive : ""}
+                aria-pressed={displayMode === "native"}
+                onClick={() => { setDisplayMode("native"); markDirty(); }}
+              >
+                Haste Eco tour
+              </button>
+              <button
+                type="button"
+                className={displayMode === "iframe" ? styles.displayModeActive : ""}
+                aria-pressed={displayMode === "iframe"}
+                onClick={() => { setDisplayMode("iframe"); markDirty(); }}
+              >
+                External iframe
+              </button>
+            </div>
+            <small>
+              {displayMode === "native"
+                ? "Visitors see the Photo Sphere Viewer tour configured below."
+                : "Visitors see the external tour URL instead of the Haste Eco viewer."}
+            </small>
+          </div>
+          {displayMode === "iframe" && (
+            <label>
+              External iframe URL
+              <input
+                dir="ltr"
+                type="url"
+                inputMode="url"
+                value={iframeUrl}
+                onChange={(event) => { setIframeUrl(event.target.value); markDirty(); }}
+                placeholder={DEFAULT_VIRTUAL_TOUR_IFRAME_URL}
+              />
+              <small>Only secure HTTPS URLs are accepted. This setting is saved through the virtual-tour API.</small>
+            </label>
+          )}
 
           <div className={styles.panelDivider} />
           <div className={styles.propertiesHeading}><span>Selected room</span><h2>Room</h2></div>
           <label>
-            Room name
-            <input value={selectedRoom.name} onChange={(event) => updateSelectedRoom((room) => ({ ...room, name: event.target.value }))} />
+            Room display name
+            <input dir="auto" value={selectedRoom.name} onChange={(event) => updateSelectedRoom((room) => ({ ...room, name: event.target.value }))} />
+            <small>This exact editable name is shown in the tour title, menu, and button tooltips.</small>
           </label>
           <label>
             Zone
@@ -453,32 +649,73 @@ export function TourAdmin({ initialProjects, properties }: TourAdminProps) {
               {sceneZones.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
             </select>
           </label>
+          <div className={styles.imageManager}>
+            <span className={styles.fieldLabel}>Panorama image</span>
+            <div className={styles.imagePreview}>
+              <Image src={selectedRoom.thumbnail} alt={`Preview of ${selectedRoom.name}`} fill sizes="280px" unoptimized />
+            </div>
+            <div className={styles.imageActions}>
+              <button
+                type="button"
+                className={styles.uploadButton}
+                disabled={imageState === "uploading"}
+                onClick={() => panoramaUploadRef.current?.click()}
+              >
+                {imageState === "uploading" ? <LoaderCircle className={styles.spinningIcon} aria-hidden /> : <ImagePlus aria-hidden />}
+                {imageState === "uploading" ? "Processing image…" : "Upload panorama"}
+              </button>
+              <button
+                type="button"
+                className={styles.imageDeleteButton}
+                disabled={!isManagedTourImage(selectedRoom.panorama) || imageState === "uploading"}
+                onClick={removeUploadedPanorama}
+              >
+                <Trash2 aria-hidden /> Delete
+              </button>
+            </div>
+            <input
+              ref={panoramaUploadRef}
+              className={styles.hiddenInput}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              onChange={uploadPanorama}
+            />
+            <small>Uploads are converted to 4096×2048 WebP. A 512×256 thumbnail is generated automatically.</small>
+          </div>
           <label>
-            Panorama image
+            Bundled panorama library
             <select
-              value={panoramaOptions.some((option) => option.panorama === selectedRoom.panorama) ? selectedRoom.panorama : "custom"}
+              value={panoramaOptions.some((option) => option.panorama === selectedRoom.panorama) ? selectedRoom.panorama : ""}
               onChange={(event) => {
-                if (event.target.value === "custom") return;
                 const image = panoramaOptions.find((option) => option.panorama === event.target.value);
-                if (image) updateSelectedRoom((room) => ({ ...room, panorama: image.panorama, thumbnail: image.thumbnail }));
+                if (image) replaceSelectedRoomImage(image.panorama, image.thumbnail);
               }}
             >
+              {!panoramaOptions.some((option) => option.panorama === selectedRoom.panorama) && <option value="">Uploaded panorama</option>}
               {panoramaOptions.map((option) => <option key={option.panorama} value={option.panorama}>{option.label}</option>)}
-              <option value="custom">Custom path / URL</option>
             </select>
-          </label>
-          <label>
-            Image path or URL
-            <input value={selectedRoom.panorama} onChange={(event) => updateSelectedRoom((room) => ({ ...room, panorama: event.target.value }))} />
-            <small>Use an image from public/panos or a CORS-enabled URL.</small>
-          </label>
-          <label>
-            Thumbnail path
-            <input value={selectedRoom.thumbnail} onChange={(event) => updateSelectedRoom((room) => ({ ...room, thumbnail: event.target.value }))} />
           </label>
           <div className={styles.coordinateFields}>
             <label>Initial yaw<input type="number" step="0.1" value={selectedRoom.initialYaw} onChange={(event) => updateSelectedRoom((room) => ({ ...room, initialYaw: Number(event.target.value) }))} /></label>
             <label>Initial pitch<input type="number" step="0.1" value={selectedRoom.initialPitch} onChange={(event) => updateSelectedRoom((room) => ({ ...room, initialPitch: Number(event.target.value) }))} /></label>
+          </div>
+          <div className={styles.arrivalViewFields}>
+            <span className={styles.fieldLabel}>Directional target views</span>
+            <small>Set these visually above. If only one is set, it is used as the fallback for both directions.</small>
+            {(["forward", "backward"] as const).map((direction) => {
+              const view = selectedRoom.arrivalViews?.[direction];
+              return (
+                <div key={direction} className={styles.arrivalViewRow}>
+                  <b>{direction === "forward" ? "Forward arrival" : "Backward arrival"}</b>
+                  {view ? (
+                    <div className={styles.coordinateFields}>
+                      <label>Yaw<input type="number" step="0.1" value={view.yaw} onChange={(event) => updateArrivalView(direction, { ...view, yaw: Number(event.target.value) })} /></label>
+                      <label>Pitch<input type="number" step="0.1" value={view.pitch} onChange={(event) => updateArrivalView(direction, { ...view, pitch: Number(event.target.value) })} /></label>
+                    </div>
+                  ) : <em>Not set — initial room view is used.</em>}
+                </div>
+              );
+            })}
           </div>
           <div className={styles.persistenceNote}>
             <b>Database-backed project</b>

@@ -45,3 +45,7 @@ export function CompassIcon(props: IconProps) {
 export function ArrowIcon(props: IconProps) {
   return <svg {...base} {...props}><path d="m5 12 7-7 7 7M12 5v14" /></svg>;
 }
+
+export function BackIcon(props: IconProps) {
+  return <svg {...base} {...props}><path d="m15 18-6-6 6-6M9 12h11" /></svg>;
+}

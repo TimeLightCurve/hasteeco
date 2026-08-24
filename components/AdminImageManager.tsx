@@ -48,7 +48,7 @@ export default function AdminImageManager({ name, initialImages, multiple = true
       <input type="hidden" name={name} value={images.join("\n")} />
       <div className="mb-3 flex items-center justify-between gap-4">
         <span className="text-xs font-bold text-stone-500">{label}</span>
-        <span className="text-[10px] text-stone-400">{images.length} تصویر</span>
+        <span className="text-base text-stone-400">{images.length} تصویر</span>
       </div>
       <div className={`grid gap-3 ${multiple ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-1"}`}>
         {images.map((src, index) => (

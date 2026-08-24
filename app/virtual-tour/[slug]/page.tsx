@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { VillaTour } from "@/components/villa-tour";
+import { ExternalVirtualTour } from "@/components/external-virtual-tour";
 import { getVirtualTourBySlug } from "@/lib/virtual-tours";
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -19,6 +20,10 @@ export default async function VirtualTourProjectPage({ params }: PageProps) {
   const { slug } = await params;
   const project = await getVirtualTourBySlug(slug);
   if (!project) notFound();
+
+  if (project.displayMode === "iframe" && project.iframeUrl) {
+    return <ExternalVirtualTour name={project.name} url={project.iframeUrl} />;
+  }
 
   return <VillaTour initialScenes={project.scenes} projectName={project.name} />;
 }

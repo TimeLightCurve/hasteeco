@@ -13,7 +13,7 @@ export default async function ListingsPage({ searchParams }: PageProps) {
     <main className="min-h-screen bg-linear-to-bl bg-linear-to-tr  from-[#eaf1ef] to-[#e7e7e7]  px-4 py-12 sm:px-8 lg:py-20">
       <div className="mx-auto max-w-7xl">
         <p className="text-base font-bold tracking-[0.18em] text-brand-gold">فهرست املاک</p>
-        <h1 className="mt-3 text-4xl font-black text-brand-dark sm:text-6xl">ملک مناسب شما</h1>
+        <h1 className="mt-3 text-4xl font-black text-brand-dark sm:text-5xl">ملک مناسب شما</h1>
         <div className="mt-10"><SearchBar listPage /></div>
         <p className="my-8 text-sm text-stone-500">{properties.length} ملک پیدا شد</p>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

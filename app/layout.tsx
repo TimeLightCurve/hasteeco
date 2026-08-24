@@ -91,7 +91,7 @@ const lausanne = localFont({
 
 
 export const metadata: Metadata = {
-  title: "هاستکو | خرید، فروش و اجاره ملک",
+  title: "هستیکو | خرید، فروش و اجاره ملک",
   description: "بهترین پلتفرم برای خرید، فروش و اجاره ملک در ایران",
 };
 

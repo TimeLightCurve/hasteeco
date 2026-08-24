@@ -18,7 +18,11 @@ export default function PropertyMap({ properties, selectedSlug, onSelect }: Prop
 
   return (
     <MapContainer center={center} zoom={6} scrollWheelZoom className="h-full w-full" attributionControl>
-      {/* <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" /> */}
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        maxZoom={19}
+      />
       <FitProperties properties={properties} />
       {properties.map((property) => {
         const selected = property.slug === selectedSlug;

@@ -4,12 +4,14 @@ import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/virtual-tour-plugin/index.css";
 import "./villa-tour.css";
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Viewer, utils } from "@photo-sphere-viewer/core";
+import { Viewer } from "@photo-sphere-viewer/core";
 import { VirtualTourPlugin } from "@photo-sphere-viewer/virtual-tour-plugin";
 import { sceneZones, tourScenes, type TourScene } from "@/lib/tour-data";
 import {
   ArrowIcon,
+  BackIcon,
   CloseIcon,
   CompassIcon,
   FullscreenIcon,
@@ -20,18 +22,38 @@ import {
 } from "./icons";
 
 const degreesToRadians = (degrees: number) => degrees * Math.PI / 180;
-const normalizeRadians = (angle: number) => Math.atan2(Math.sin(angle), Math.cos(angle));
+const TOUR_TRANSITION_DURATION = 760;
+const LIGHT_TRANSITION_DURATION = 720;
+const DEFAULT_TOUR_ZOOM = 10;
 
-function createFloorArrow() {
+const zoneLabels: Record<TourScene["zone"], string> = {
+  Exterior: "محوطه بیرونی",
+  "Ground floor": "طبقه همکف",
+  "Upper floor": "طبقه بالا",
+};
+
+const formatSceneNumber = (value: number, minimumIntegerDigits = 1) => new Intl.NumberFormat("fa-IR", {
+  minimumIntegerDigits,
+  useGrouping: false,
+}).format(value);
+
+function createFloorArrow(action: "move" | "light" = "move") {
   const arrow = document.createElement("button");
   arrow.type = "button";
-  arrow.className = "floor-target";
-  arrow.setAttribute("aria-label", "Move to the next space");
+  arrow.className = `floor-target floor-target--${action}`;
+  arrow.setAttribute("aria-label", action === "light" ? "روشن یا خاموش کردن چراغ" : "حرکت به فضای بعدی");
 
   for (const className of ["floor-target__pulse", "floor-target__ring", "floor-target__dot"]) {
     const layer = document.createElement("span");
     layer.className = className;
     arrow.appendChild(layer);
+  }
+
+  if (action === "light") {
+    const light = document.createElement("span");
+    light.className = "floor-target__light";
+    light.setAttribute("aria-hidden", "true");
+    arrow.appendChild(light);
   }
 
   return arrow;
@@ -44,7 +66,9 @@ type VillaTourProps = {
 
 export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco" }: VillaTourProps) {
   const viewerElementRef = useRef<HTMLDivElement>(null);
+  const transitionSnapshotRef = useRef<HTMLCanvasElement>(null);
   const floorReticleRef = useRef<HTMLDivElement>(null);
+  const lightOverlayRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
   const tourPluginRef = useRef<VirtualTourPlugin | null>(null);
   const [scenes, setScenes] = useState(initialScenes);
@@ -60,13 +84,13 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
     if (!viewerElementRef.current || viewerRef.current) return;
     const container = viewerElementRef.current;
     let viewer: Viewer | null = null;
-    let entranceAnimation: { cancel: () => void } | null = null;
-    let entranceFrame = 0;
-    let entrancePending = false;
+    let snapshotAnimation: Animation | null = null;
+    let lightAnimation: Animation | null = null;
+    let lightFrame = 0;
+    let lightTransitionPending = false;
+    let movementFadePending = false;
     let viewerIsReady = false;
     let pointerIsDown = false;
-    let entranceStartZoom = 18;
-    let entranceTargetZoom = 40;
 
     // Deferring initialization avoids leaving an in-flight panorama request behind
     // when React development mode performs its intentional mount/unmount check.
@@ -89,6 +113,7 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
         caption: item.name,
         links: item.links.map((link) => {
           const placement = link.placement ?? "ground";
+          const action = link.action ?? "move";
           return {
             nodeId: link.nodeId,
             position: {
@@ -96,8 +121,12 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
               pitch: `${link.pitch ?? -18}deg`,
             },
             arrowStyle: {
-              className: `villa-link villa-link--${placement}`,
-              size: placement === "ground" ? { width: 62, height: 32 } : { width: 54, height: 54 },
+              className: `villa-link villa-link--${placement} villa-link--${action}`,
+              size: placement === "ground" ? { width: 72, height: 38 } : { width: 64, height: 64 },
+            },
+            data: {
+              action,
+              direction: link.direction,
             },
           };
         }),
@@ -107,7 +136,7 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
         container,
         defaultYaw: `${startScene.initialYaw}deg`,
         defaultPitch: `${startScene.initialPitch}deg`,
-        defaultZoomLvl: 18,
+        defaultZoomLvl: DEFAULT_TOUR_ZOOM,
         fisheye: 0,
         navbar: false,
         keyboard: "always",
@@ -120,72 +149,76 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
             dataMode: "client",
             positionMode: "manual",
             // Pinned markers use exact spherical coordinates edited in /admin.
+            // Manual 2D projection preserves each admin-defined yaw and pitch.
+            // The 3D link renderer places arrows relative to the camera/floor.
             renderMode: "2d",
             nodes,
             startNodeId: startScene.id,
-            preload: (node) => (node.links?.length ?? 0) <= 2,
+            // Start loading every adjacent panorama as soon as a scene opens.
+            // This keeps 8K files off the critical path after the source zoom.
+            preload: true,
             showLinkTooltip: true,
             transitionOptions: (node, fromNode, fromLink) => {
               if (!fromNode) {
                 return {
-                  showLoader: true,
-                  speed: 1,
-                  effect: "none" as const,
+                  showLoader: false,
+                  speed: 50,
+                  effect: "fade" as const,
                   rotation: false,
-                  zoomTo: 18,
+                  zoomTo: DEFAULT_TOUR_ZOOM,
                 };
               }
 
-              entranceStartZoom = viewer?.getZoomLevel() ?? 18;
+              const currentZoom = viewer?.getZoomLevel() ?? DEFAULT_TOUR_ZOOM;
               const currentPosition = viewer?.getPosition();
-              let destinationYaw = currentPosition?.yaw;
+              const sourceScene = configuredScenesById.get(fromNode.id);
+              const destinationScene = configuredScenesById.get(node.id);
+              const action = fromLink?.data?.action === "light" ? "light" : "move";
 
-              // Panorama files do not necessarily share the same zero heading.
-              // Align the clicked doorway with the reciprocal doorway in the
-              // destination and preserve how far the user was looking to its
-              // left or right. This keeps the physical travel direction stable.
-              if (currentPosition && fromNode && fromLink) {
-                const sourceScene = configuredScenesById.get(fromNode.id);
-                const destinationScene = configuredScenesById.get(node.id);
-                const outgoingLink = sourceScene?.links.find((link) => link.nodeId === node.id);
-                const returnLink = destinationScene?.links.find((link) => link.nodeId === fromNode.id);
-
-                if (outgoingLink && returnLink) {
-                  const relativeLookYaw = normalizeRadians(
-                    currentPosition.yaw - degreesToRadians(outgoingLink.yaw),
-                  );
-                  destinationYaw = normalizeRadians(
-                    degreesToRadians(returnLink.yaw) + Math.PI + relativeLookYaw,
-                  );
-                }
+              if (action === "light") {
+                movementFadePending = false;
+                lightTransitionPending = !reducedMotion;
+                return {
+                  showLoader: false,
+                  speed: reducedMotion ? 1 : LIGHT_TRANSITION_DURATION,
+                  effect: reducedMotion ? "none" : "fade",
+                  rotation: false,
+                  rotateTo: currentPosition,
+                  zoomTo: currentZoom,
+                };
               }
 
-              const entrancePosition = currentPosition && {
-                yaw: destinationYaw ?? currentPosition.yaw,
-                pitch: currentPosition.pitch,
-              };
-              // Reverse the previous 0 -> peak -> 0 pulse. The destination now
-              // starts with a wide fisheye and progressively contracts while
-              // the camera zooms forward, matching PSV's entrance animation.
-              entranceTargetZoom = Math.min(52, Math.max(40, entranceStartZoom + 18));
-              entrancePending = !reducedMotion;
+              lightTransitionPending = false;
+              movementFadePending = !reducedMotion;
+              const automaticDirection = sourceScene && destinationScene && destinationScene.index < sourceScene.index
+                ? "backward"
+                : "forward";
+              const direction: "forward" | "backward" = fromLink?.data?.direction === "forward" || fromLink?.data?.direction === "backward"
+                ? fromLink.data.direction
+                : automaticDirection;
+              const oppositeDirection = direction === "forward" ? "backward" : "forward";
+              const declaredView = destinationScene?.arrivalViews?.[direction]
+                ?? destinationScene?.arrivalViews?.[oppositeDirection];
+              const entrancePosition = destinationScene
+                ? {
+                    yaw: degreesToRadians(declaredView?.yaw ?? destinationScene.initialYaw),
+                    pitch: degreesToRadians(declaredView?.pitch ?? destinationScene.initialPitch),
+                  }
+                : currentPosition;
               return {
                 showLoader: false,
-                speed: reducedMotion ? 1 : 2200,
+                speed: reducedMotion ? 1 : TOUR_TRANSITION_DURATION,
                 effect: reducedMotion ? "none" : "fade",
-                // Keep both panorama layers locked to the camera direction at
-                // the instant navigation begins. Otherwise the virtual-tour
-                // plugin rotates toward the link's fixed yaw before fading.
                 rotation: false,
                 rotateTo: entrancePosition,
-                // Zoom and fisheye are driven by the synchronized entrance
-                // animation below, while PSV owns the panorama crossfade.
-                zoomTo: entranceStartZoom,
+                // Preserve the camera zoom. The source-only overlay below
+                // supplies the forward movement without changing destination.
+                zoomTo: currentZoom,
               };
             },
             arrowStyle: {
-              element: () => createFloorArrow(),
-              size: { width: 62, height: 32 },
+              element: (link) => createFloorArrow(link.data?.action === "light" ? "light" : "move"),
+              size: { width: 72, height: 38 },
               className: "villa-link",
             },
           }),
@@ -196,32 +229,70 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
       viewerRef.current = viewer;
       tourPluginRef.current = tourPlugin;
 
-      const playEntranceAnimation = () => {
-        if (!viewer || reducedMotion) return;
-        entranceAnimation?.cancel();
-        container.classList.add("is-entering");
-        const animation = new utils.Animation({
-          properties: {
-            fisheye: { start: 1.9, end: 0 },
-            zoom: { start: entranceStartZoom, end: entranceTargetZoom },
-          },
-          duration: 2200,
-          easing: "inOutQuad",
-          onTick: ({ fisheye, zoom }) => {
-            if (!viewer) return;
-            viewer.setOptions({ fisheye });
-            viewer.zoom(zoom);
-          },
+      const hideTransitionSnapshot = () => {
+        const snapshot = transitionSnapshotRef.current;
+        snapshotAnimation?.cancel();
+        snapshotAnimation = null;
+        if (snapshot) {
+          snapshot.style.opacity = "0";
+          snapshot.style.visibility = "hidden";
+        }
+      };
+
+      const captureTransitionSnapshot = () => {
+        const source = container.querySelector<HTMLCanvasElement>(".psv-canvas-container canvas");
+        const snapshot = transitionSnapshotRef.current;
+        if (!source || !snapshot || !source.width || !source.height) return false;
+
+        const context = snapshot.getContext("2d");
+        if (!context) return false;
+        try {
+          snapshot.width = source.width;
+          snapshot.height = source.height;
+          context.drawImage(source, 0, 0, snapshot.width, snapshot.height);
+          snapshot.style.visibility = "visible";
+          snapshot.style.opacity = "1";
+          return true;
+        } catch {
+          hideTransitionSnapshot();
+          return false;
+        }
+      };
+
+      const fadeTransitionSnapshot = () => {
+        const snapshot = transitionSnapshotRef.current;
+        if (!snapshot || snapshot.style.visibility !== "visible") return;
+        snapshotAnimation?.cancel();
+        snapshotAnimation = snapshot.animate([
+          { opacity: 1, transform: "scale(1)", filter: "blur(0) saturate(1) contrast(1)", offset: 0 },
+          { opacity: 0.94, transform: "scale(1.075)", filter: "blur(0.15px) saturate(1.04) contrast(1.015)", offset: 0.46 },
+          { opacity: 0, transform: "scale(1.19)", filter: "blur(0.7px) saturate(1.1) contrast(1.035)", offset: 1 },
+        ], {
+          duration: TOUR_TRANSITION_DURATION,
+          easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+          fill: "forwards",
         });
-        entranceAnimation = animation;
-        animation.then((completed) => {
-          container.classList.remove("is-entering");
-          if (completed && viewer) {
-            viewer.setOptions({ fisheye: 0 });
-            viewer.zoom(entranceTargetZoom);
-          }
-          entranceAnimation = null;
+        snapshotAnimation.addEventListener("finish", hideTransitionSnapshot, { once: true });
+      };
+
+      const playLightTransition = () => {
+        const overlay = lightOverlayRef.current;
+        if (!overlay || reducedMotion) return;
+        lightAnimation?.cancel();
+        lightAnimation = overlay.animate([
+          { opacity: 0, offset: 0 },
+          { opacity: 0.18, offset: 0.2 },
+          { opacity: 0.88, offset: 0.48 },
+          { opacity: 0.24, offset: 0.72 },
+          { opacity: 0, offset: 1 },
+        ], {
+          duration: LIGHT_TRANSITION_DURATION,
+          easing: "ease-in-out",
+          fill: "none",
         });
+        lightAnimation.addEventListener("finish", () => {
+          lightAnimation = null;
+        }, { once: true });
       };
 
       const hideFloorReticle = () => {
@@ -280,11 +351,14 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
       viewer.addEventListener("ready", markViewerReady, { once: true });
       viewer.addEventListener("panorama-loaded", () => {
         markViewerReady();
-        if (entrancePending) {
-          entrancePending = false;
-          // Let PSV create its native fade first, then run our animation after
-          // its frame so the zoom/fisheye values are the final camera values.
-          entranceFrame = window.requestAnimationFrame(playEntranceAnimation);
+        if (movementFadePending) {
+          movementFadePending = false;
+          // panorama-loaded fires before PSV starts its destination fade, so
+          // this captures only the current panorama at its exact camera view.
+          if (captureTransitionSnapshot()) fadeTransitionSnapshot();
+        } else if (lightTransitionPending) {
+          lightTransitionPending = false;
+          lightFrame = window.requestAnimationFrame(playLightTransition);
         }
       });
       if (viewer.state.ready) markViewerReady();
@@ -297,9 +371,9 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
 
       // Store DOM cleanup with the container because initialization is deferred.
       container.addEventListener("tour-cleanup", () => {
-        window.cancelAnimationFrame(entranceFrame);
-        entranceAnimation?.cancel();
-        container.classList.remove("is-entering");
+        window.cancelAnimationFrame(lightFrame);
+        hideTransitionSnapshot();
+        lightAnimation?.cancel();
         hideFloorReticle();
         container.removeEventListener("pointermove", updateFloorReticle);
         container.removeEventListener("pointerleave", hideFloorReticle);
@@ -310,8 +384,9 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
 
     return () => {
       window.cancelAnimationFrame(frameId);
-      window.cancelAnimationFrame(entranceFrame);
-      entranceAnimation?.cancel();
+      window.cancelAnimationFrame(lightFrame);
+      snapshotAnimation?.cancel();
+      lightAnimation?.cancel();
       if (container.dataset.tourReady) {
         container.dispatchEvent(new Event("tour-cleanup"));
         delete container.dataset.tourReady;
@@ -339,75 +414,83 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
   };
 
   return (
-    <main className="tour-shell" dir="ltr">
-      <div ref={viewerElementRef} className="viewer" aria-label="360 degree villa panorama" />
+    <main className="tour-shell" dir="rtl">
+      {/* PSV's projected hotspot layer must remain LTR. Inheriting the Persian
+          RTL direction mirrors its screen-coordinate calculations and makes
+          links appear to slide away from their saved panorama positions. */}
+      <div ref={viewerElementRef} className="viewer" dir="ltr" aria-label="نمای ۳۶۰ درجه ویلا" />
+      <canvas ref={transitionSnapshotRef} className="tour-transition-snapshot" aria-hidden="true" />
       <div ref={floorReticleRef} className="floor-reticle" aria-hidden="true"><span /></div>
 
       <div className="viewer-vignette" aria-hidden="true" />
+      <div ref={lightOverlayRef} className="light-transition-overlay" aria-hidden="true" />
 
       <header className="topbar">
-        <button className="brand" type="button" onClick={() => navigateTo(scenes[0]?.id ?? "scene-1")} aria-label="Return to the first scene">
+        <button className="brand" type="button" onClick={() => navigateTo(scenes[0]?.id ?? "scene-1")} aria-label="بازگشت به فضای نخست">
           <span className="brand-mark">H</span>
           <span className="brand-copy">
             <strong>{projectName}</strong>
-            <small>Private villa · 360° tour</small>
+            <small>ویلای اختصاصی · تور ۳۶۰ درجه</small>
           </span>
         </button>
 
         <div className="topbar-actions">
-          <span className="scene-counter"><b>{String(currentScene.index).padStart(2, "0")}</b> / {scenes.length}</span>
-          <button className="round-button menu-button" type="button" onClick={() => setIsMenuOpen(true)} aria-label="Open scene menu">
+          <span className="scene-counter"><b>{formatSceneNumber(currentScene.index, 2)}</b> / {formatSceneNumber(scenes.length)}</span>
+          <Link className="round-button home-back-button" href="/" aria-label="بازگشت به صفحه اصلی">
+            <BackIcon />
+          </Link>
+          <button className="round-button menu-button" type="button" onClick={() => setIsMenuOpen(true)} aria-label="باز کردن فهرست فضاها">
             <MenuIcon />
           </button>
         </div>
       </header>
 
-      <aside className="viewer-controls" aria-label="Tour controls">
-        <button type="button" onClick={() => changeZoom(12)} aria-label="Zoom in"><PlusIcon /></button>
-        <button type="button" onClick={() => changeZoom(-12)} aria-label="Zoom out"><MinusIcon /></button>
+      <aside className="viewer-controls" aria-label="کنترل‌های تور مجازی">
+        <button type="button" onClick={() => changeZoom(12)} aria-label="بزرگ‌نمایی"><PlusIcon /></button>
+        <button type="button" onClick={() => changeZoom(-12)} aria-label="کوچک‌نمایی"><MinusIcon /></button>
         <span className="control-rule" />
-        <button type="button" onClick={toggleFullscreen} aria-label="Toggle fullscreen"><FullscreenIcon /></button>
-        <button type="button" onClick={() => setIsInfoOpen(true)} aria-label="Tour help"><InfoIcon /></button>
+        <button type="button" onClick={toggleFullscreen} aria-label="نمایش تمام‌صفحه"><FullscreenIcon /></button>
+        <button type="button" onClick={() => setIsInfoOpen(true)} aria-label="راهنمای تور"><InfoIcon /></button>
       </aside>
 
       <section className="scene-card" aria-live="polite">
-        <span className="scene-zone">{currentScene.zone}</span>
+        <span className="scene-zone">{zoneLabels[currentScene.zone]}</span>
         <h1>{currentScene.name}</h1>
         <div className="scene-card-footer">
-          <span><CompassIcon /> 360° view</span>
-          <span className="swipe-hint">Drag to explore</span>
+          <span><CompassIcon /> نمای ۳۶۰ درجه</span>
+          <span className="swipe-hint">برای مشاهده بکشید</span>
         </div>
       </section>
 
       <div className="interaction-hint" aria-hidden="true">
         <span className="mouse-symbol" />
-        <span>Drag to look around</span>
+        <span>برای نگاه کردن به اطراف بکشید</span>
       </div>
 
       <div className={`loading-screen ${isReady ? "is-hidden" : ""}`} aria-hidden={isReady}>
         <div className="loader-brand">
           <span className="loader-mark">H</span>
           <p>Haste Eco</p>
-          <small>Preparing your private tour</small>
+          <small>در حال آماده‌سازی تور اختصاصی شما</small>
         </div>
         <div className="loader-track"><span /></div>
-        <span className="loader-caption">Loading 360° experience</span>
+        <span className="loader-caption">در حال بارگذاری نمای ۳۶۰ درجه</span>
       </div>
 
       <div className={`drawer-backdrop ${isMenuOpen ? "is-open" : ""}`} onClick={() => setIsMenuOpen(false)} />
       <aside className={`scene-drawer ${isMenuOpen ? "is-open" : ""}`} aria-hidden={!isMenuOpen}>
         <div className="drawer-header">
           <div>
-            <span className="eyebrow">Explore the villa</span>
-            <h2>Choose a space</h2>
+            <span className="eyebrow">گشت‌وگذار در ویلا</span>
+            <h2>یک فضا را انتخاب کنید</h2>
           </div>
-          <button className="round-button" type="button" onClick={() => setIsMenuOpen(false)} aria-label="Close scene menu"><CloseIcon /></button>
+          <button className="round-button" type="button" onClick={() => setIsMenuOpen(false)} aria-label="بستن فهرست فضاها"><CloseIcon /></button>
         </div>
 
         <div className="scene-list">
           {sceneZones.map((zone) => (
             <section className="scene-group" key={zone}>
-              <div className="group-heading"><h3>{zone}</h3><span>{scenes.filter((item) => item.zone === zone).length} spaces</span></div>
+              <div className="group-heading"><h3>{zoneLabels[zone]}</h3><span>{formatSceneNumber(scenes.filter((item) => item.zone === zone).length)} فضا</span></div>
               <div className="scene-grid">
                 {scenes.filter((item) => item.zone === zone).map((item) => (
                   <button
@@ -418,7 +501,7 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
                   >
                     <span className="tile-image">
                       <Image src={item.thumbnail} alt="" fill sizes="(max-width: 640px) 44vw, 180px" />
-                      <span className="tile-index">{String(item.index).padStart(2, "0")}</span>
+                      <span className="tile-index">{formatSceneNumber(item.index, 2)}</span>
                     </span>
                     <span className="tile-name">{item.name}</span>
                   </button>
@@ -430,13 +513,13 @@ export function VillaTour({ initialScenes = tourScenes, projectName = "Haste Eco
       </aside>
 
       <div className={`info-modal-wrap ${isInfoOpen ? "is-open" : ""}`} onClick={() => setIsInfoOpen(false)}>
-        <section className="info-modal" role="dialog" aria-modal="true" aria-label="How to use this tour" onClick={(event) => event.stopPropagation()}>
-          <button className="modal-close" type="button" onClick={() => setIsInfoOpen(false)} aria-label="Close help"><CloseIcon /></button>
-          <span className="eyebrow">A quick guide</span>
-          <h2>Move through the villa</h2>
-          <p>Drag anywhere to look around. Select the glowing circles placed on doors and pathways to walk into the next space.</p>
-          <div className="guide-link-demo"><span><ArrowIcon /></span><small>Select to move</small></div>
-          <button className="primary-button" type="button" onClick={() => setIsInfoOpen(false)}>Continue exploring</button>
+        <section className="info-modal" role="dialog" aria-modal="true" aria-label="راهنمای استفاده از تور" onClick={(event) => event.stopPropagation()}>
+          <button className="modal-close" type="button" onClick={() => setIsInfoOpen(false)} aria-label="بستن راهنما"><CloseIcon /></button>
+          <span className="eyebrow">راهنمای سریع</span>
+          <h2>در ویلا حرکت کنید</h2>
+          <p>برای نگاه کردن به اطراف، تصویر را بکشید. برای رفتن به فضای بعدی، دایره‌های درخشان روی درها و مسیرها را انتخاب کنید.</p>
+          <div className="guide-link-demo"><span><ArrowIcon /></span><small>برای حرکت انتخاب کنید</small></div>
+          <button className="primary-button" type="button" onClick={() => setIsInfoOpen(false)}>ادامه گشت‌وگذار</button>
         </section>
       </div>
     </main>

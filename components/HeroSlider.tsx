@@ -91,7 +91,7 @@ export default function HeroSlider() {
           <div className="absolute inset-0 flex items-center pb-48 md:pb-0">
             <div className="w-full mx-auto px-8 md:px-36">
               <div className="max-w-2xl space-y-5 text-white">
-                <h1 className="text-3xl md:text-8xl font-black leading-tight drop-shadow-md">
+                <h1 className="text-3xl font-black leading-tight drop-shadow-md md:text-6xl">
                   {slide.heading}
                 </h1>
                 {/* <p className="text-base md:text-lg leading-8 text-white/90 drop-shadow">
@@ -147,7 +147,7 @@ export default function HeroSlider() {
         <div className="grid min-h-44 grid-cols-[1fr_auto]">
           <div className="flex min-w-0 flex-col justify-between gap-4 p-6">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.2em] text-white/45">HASTE ECO / {String(current + 1).padStart(2, "0")}</p>
+              <p className="text-base font-bold tracking-[0.2em] text-white/45">HASTE ECO / {String(current + 1).padStart(2, "0")}</p>
               <p className="mt-3 line-clamp-2 text-sm leading-6 text-white/70">{activeSlide.subtext}</p>
             </div>
             <Link href={activeSlide.ctaHref} className="flex w-fit items-center gap-2 text-xs font-bold text-white transition hover:text-brand-gold">{activeSlide.cta}<ArrowLeft className="h-4 w-4" aria-hidden /></Link>

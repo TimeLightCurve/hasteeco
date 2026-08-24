@@ -4,8 +4,8 @@ import Image from "next/image"
 import { ArrowLeft } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "تماس با ما | هاستکو",
-  description: "برای خرید، فروش، اجاره یا دریافت مشاوره تخصصی ملک با تیم هاستکو در ارتباط باشید.",
+  title: "تماس با ما | هستیکو",
+  description: "برای خرید، فروش، اجاره یا دریافت مشاوره تخصصی ملک با تیم هستیکو در ارتباط باشید.",
 }
 
 export default async function ContactPage() {
@@ -14,11 +14,11 @@ export default async function ContactPage() {
     <main dir="rtl" className="min-h-screen bg-[#f4f2ed] text-brand-dark">
       <section className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-[62vh] overflow-hidden bg-black lg:min-h-screen">
-          <Image src="/images/properties/villa-130-exterior.jpg" alt="پروژه ویلایی هاستکو" fill priority className="object-cover" />
+          <Image src="/images/properties/villa-130-exterior.jpg" alt="پروژه ویلایی هستیکو" fill priority className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/35" />
           <div className="absolute inset-x-0 bottom-0 z-10 p-7 text-white sm:p-10 lg:p-14">
             <p className="text-base font-bold tracking-[0.25em] text-white/55">CONTACT HASTE ECO</p>
-            <h1 className="mt-5 text-5xl font-black leading-[0.95] sm:text-7xl lg:text-8xl">بیایید<br />گفت‌وگو کنیم</h1>
+            <h1 className="mt-5 text-4xl font-black leading-tight sm:text-6xl lg:text-7xl">بیایید<br />گفت‌وگو کنیم</h1>
             <p className="mt-7 max-w-lg text-sm leading-8 text-white/70">برای خرید، فروش، اجاره یا مشاوره درباره پروژه بعدی‌تان، پیام بگذارید. کارشناسان ما در اولین فرصت با شما تماس می‌گیرند.</p>
           </div>
         </div>
@@ -42,7 +42,7 @@ export default async function ContactPage() {
             </div>
             <label className="block"><span className="mb-2 block text-base font-bold text-stone-500">پیام شما</span><textarea name="message" rows={5} required placeholder="چطور می‌توانیم کمکتان کنیم؟" className="w-full resize-y border-0 border-b border-stone-300 bg-transparent px-0 py-3 text-sm leading-7 outline-none placeholder:text-stone-400 focus:border-brand-green" /></label>
             <div className="flex flex-col items-start justify-between gap-5 pt-3 sm:flex-row sm:items-center">
-              <p className="max-w-sm text-[11px] leading-6 text-stone-400">با ارسال فرم، برنامه ایمیل دستگاه شما برای فرستادن پیام به هاستکو باز می‌شود.</p>
+              <p className="max-w-sm text-base leading-6 text-stone-400">با ارسال فرم، برنامه ایمیل دستگاه شما برای فرستادن پیام به هستیکو باز می‌شود.</p>
               <button type="submit" className="flex items-center gap-2 rounded-full bg-brand-dark px-8 py-4 text-sm font-bold text-white transition hover:bg-brand-green">ارسال پیام <ArrowLeft className="h-4 w-4" aria-hidden /></button>
             </div>
           </form>
@@ -54,7 +54,7 @@ export default async function ContactPage() {
 
 function ContactItem({ label, value, href, ltr = false }: { label: string; value: string; href?: string; ltr?: boolean }) {
   const content = <span dir={ltr ? "ltr" : undefined} className="mt-2 block text-base font-black">{value}</span>
-  return <div><p className="text-[10px] font-bold tracking-[0.12em] text-brand-gold">{label}</p>{href ? <a href={href} className="transition hover:text-brand-green">{content}</a> : content}</div>
+  return <div><p className="text-base font-bold tracking-[0.12em] text-brand-gold">{label}</p>{href ? <a href={href} className="transition hover:text-brand-green">{content}</a> : content}</div>
 }
 
 function Field(props: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
