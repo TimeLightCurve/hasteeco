@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 const slides = [
   {
     id: 1,
-    imageSrc: "/images/properties/villa-130-exterior.png",
+    imageSrc: "/images/properties/villa-130-exterior.jpg",
     gradient: "from-stone-600 via-stone-700 to-stone-900",
     heading: "با ما به دنیای رویاهایتان قدم بگذارید!",
     subtext:
@@ -18,7 +18,7 @@ const slides = [
   },
   {
     id: 2,
-    imageSrc: "/images/properties/villa-130-interior.png",
+    imageSrc: "/images/properties/villa-130-interior.jpg",
     gradient: "from-emerald-900 via-emerald-800 to-stone-900",
     heading: "بهترین ملک را با ما پیدا کنید",
     subtext:
@@ -28,7 +28,7 @@ const slides = [
   },
   {
     id: 3,
-    imageSrc: "/images/properties/villa-130-twilight.png",
+    imageSrc: "/images/properties/villa-130-twilight.jpg",
     gradient: "from-slate-700 via-slate-800 to-stone-900",
     heading: "سرمایه‌گذاری هوشمندانه در ملک",
     subtext:

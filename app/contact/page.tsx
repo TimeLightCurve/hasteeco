@@ -14,7 +14,7 @@ export default async function ContactPage() {
     <main dir="rtl" className="min-h-screen bg-[#f4f2ed] text-brand-dark">
       <section className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-[62vh] overflow-hidden bg-black lg:min-h-screen">
-          <Image src="/images/properties/villa-130-exterior.png" alt="پروژه ویلایی هاستکو" fill priority className="object-cover" />
+          <Image src="/images/properties/villa-130-exterior.jpg" alt="پروژه ویلایی هاستکو" fill priority className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/35" />
           <div className="absolute inset-x-0 bottom-0 z-10 p-7 text-white sm:p-10 lg:p-14">
             <p className="text-base font-bold tracking-[0.25em] text-white/55">CONTACT HASTE ECO</p>

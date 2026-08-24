@@ -95,7 +95,7 @@ export default function AdminServicesManager({ initialServices }: Props) {
                 <Field name="relatedPropertyType" label="Related property type" dir="ltr" defaultValue={editing?.relatedPropertyType ?? "villa"} />
                 <Field name="title" label="Title" dir="ltr" required defaultValue={editing?.title} />
                 <TextArea name="description" label="Description" dir="ltr" required defaultValue={editing?.description} rows={5} />
-                <AdminImageManager name="image" label="تصویر سرویس" initialImages={[editing?.image ?? "/images/properties/villa-130-exterior.png"]} multiple={false} />
+                <AdminImageManager name="image" label="تصویر سرویس" initialImages={[editing?.image ?? "/images/properties/villa-130-exterior.jpg"]} multiple={false} />
                 <Field name="order" label="Order" type="number" required defaultValue={editing?.order ?? 1} />
                 <label className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3.5 text-base font-bold">
                   <input name="active" type="checkbox" defaultChecked={editing?.active ?? true} className="accent-brand-green" />

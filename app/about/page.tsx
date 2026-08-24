@@ -18,7 +18,7 @@ export default function AboutPage() {
   return (
     <main dir="rtl" className="bg-[#f4f2ed] text-brand-dark">
       <section className="relative min-h-screen overflow-hidden bg-black text-white">
-        <Image src="/images/properties/villa-130-twilight.png" alt="ویلای مدرن در طبیعت" fill priority className="object-cover" />
+        <Image src="/images/properties/villa-130-twilight.jpg" alt="ویلای مدرن در طبیعت" fill priority className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-l from-black/75 via-black/25 to-black/45" />
         <div className="relative z-10 mx-auto flex min-h-screen max-w-[1600px] flex-col justify-end px-6 pb-16 pt-36 sm:px-10 lg:px-16 lg:pb-20">
           <p className="mb-6 text-base font-bold tracking-[0.3em] text-white/60">ABOUT HASTE ECO</p>
@@ -32,7 +32,7 @@ export default function AboutPage() {
 
       <section className="mx-auto grid max-w-[1500px] gap-12 px-6 py-24 sm:px-10 lg:grid-cols-2 lg:px-16 lg:py-32">
         <div className="relative min-h-[520px] overflow-hidden rounded-[2rem]">
-          <Image src="/images/properties/villa-130-interior.png" alt="فضای داخلی یکی از پروژه‌های هاستکو" fill className="object-cover" />
+          <Image src="/images/properties/villa-130-interior.jpg" alt="فضای داخلی یکی از پروژه‌های هاستکو" fill className="object-cover" />
           <div className="absolute bottom-0 left-0 bg-black p-7 text-white sm:p-9">
             <strong className="text-5xl font-black">+۱۰</strong>
             <p className="mt-2 text-base text-white/60">سال تجربه تخصصی</p>

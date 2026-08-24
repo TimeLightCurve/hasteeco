@@ -15,7 +15,7 @@ export default async function LoginPage() {
   return (
     <main className="grid min-h-screen bg-[#f4f2ed] lg:grid-cols-[1.1fr_0.9fr]" dir="rtl">
       <section className="relative hidden overflow-hidden lg:block">
-        <Image src="/images/properties/villa-130-twilight.png" alt="ویلای هاستکو" fill priority sizes="55vw" className="object-cover" />
+        <Image src="/images/properties/villa-130-twilight.jpg" alt="ویلای هاستکو" fill priority sizes="55vw" className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/10 to-black/20" />
         <div className="absolute inset-x-0 bottom-0 p-12 text-white xl:p-20">
           <p className="text-base font-bold tracking-[0.22em] text-brand-gold">HASTE ECO ADMIN</p>

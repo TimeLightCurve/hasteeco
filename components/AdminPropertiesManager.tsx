@@ -164,7 +164,7 @@ function PropertyForm({ property, nextListingId, onSubmit, pending, message, def
 
       <FormSection title="ویژگی‌ها و تصاویر" description="هر مورد را در یک خط جدا وارد کنید">
         <TextArea name="features" label="ویژگی‌های انگلیسی" dir="ltr" defaultValue={property?.features.join("\n")} rows={5} placeholder="Private pool&#10;Landscaped garden" />
-        <AdminImageManager name="images" label="تصاویر ملک" initialImages={property?.images ?? ["/images/properties/villa-130-exterior.png"]} />
+        <AdminImageManager name="images" label="تصاویر ملک" initialImages={property?.images ?? ["/images/properties/villa-130-exterior.jpg"]} />
       </FormSection>
 
       {message && <Notice message={message} />}
